@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
+import ProsperButton from "./components/button";
 
 export default function App() {
   const [message, setMessage] = useState("Loading...");
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
+      <ProsperButton />
       <StatusBar style="auto" />
     </View>
   );
