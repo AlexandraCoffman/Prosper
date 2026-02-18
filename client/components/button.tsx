@@ -1,4 +1,5 @@
 import { Pressable, Text, StyleSheet } from "react-native";
+import { Colors } from "../styles/colors";
 
 const ProsperButton = () => {
   return (
@@ -12,13 +13,13 @@ export default ProsperButton;
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#DAF5C3",
+    backgroundColor: Colors.accent,
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
   },
   text: {
-    color: "#000000",
+    color: Colors.text,
     fontSize: 16,
     fontWeight: "600",
   },
