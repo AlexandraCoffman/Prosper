@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "white",
     justifyContent: "center",
+    margin: 8,
   },
   slider: {
     height: 10,
