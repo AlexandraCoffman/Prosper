@@ -127,7 +127,6 @@ const CalendarPicker = () => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 300,
     backgroundColor: "white",
     padding: 16,
     margin: 24,
