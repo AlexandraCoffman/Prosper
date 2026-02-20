@@ -29,6 +29,7 @@ export default function App() {
       <Slider />
       <CalendarPicker />
       <StatusBar style="auto" />
+      
     </View>
   );
 }
