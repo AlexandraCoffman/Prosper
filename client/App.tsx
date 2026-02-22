@@ -1,11 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
-import ProsperButton from "./components/button";
-import CalendarPicker from "./components/calendar-picker";
-import Slider from "./components/slider";
+import BottomNav from "./components/nav-bar"; 
+import Budget from "./app/tabs/Budget";
 
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState("Dashboard");
   const [message, setMessage] = useState("Loading...");
 
   useEffect(() => {
@@ -21,15 +21,24 @@ export default function App() {
 
     fetchMessage();
   }, []);
+  // Bottom nav bar links
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case "Budget":
+        return <Budget />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* <Text>{message}</Text> */}
-      <ProsperButton />
-      <Slider />
-      <CalendarPicker />
+      <View style={styles.content}>
+        {renderScreen()}
+      </View>
+
+      <BottomNav currentScreen={currentScreen} setScreen={setCurrentScreen} />
       <StatusBar style="auto" />
-      
     </View>
   );
 }
@@ -38,6 +47,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  content: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
