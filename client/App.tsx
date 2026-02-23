@@ -1,12 +1,19 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
+import { useFonts } from "expo-font";
 import BottomNav from "./components/nav-bar"; 
 import Budget from "./app/tabs/Budget";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
   const [message, setMessage] = useState("Loading...");
+  // Set global font for app
+  const [fontsLoaded] = useFonts({
+    "Libre Caslon Text": require("./styles/LibreCaslonText-Regular.ttf"),
+    "Libre Caslon Text Bold": require("./styles/LibreCaslonText-Bold.ttf"),
+    "Libre Caslon Text Italic": require("./styles/LibreCaslonText-Italic.ttf"),
+  });
 
   useEffect(() => {
     const fetchMessage = async () => {
