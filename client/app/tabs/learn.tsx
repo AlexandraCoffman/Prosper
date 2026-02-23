@@ -1,33 +1,36 @@
-import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { Colors } from "../../styles/colors";
-import { Fonts } from "../../styles/fonts";
+import LearnHeader from "../../components/learn-header";
+import RecommendationCard from "../../components/learn-recommendation-card";
+import LearnStreakTracker from "../../components/learn-streak-tracker";
+import LearnLessonsSection from "../../components/learn-lessons-section";
+import LearnVideosCarousel from "../../components/learn-videos-carousel";
 
-const Learn = () => {
+export default function Learn() {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Learn</Text>
-      </View>
+      <LearnHeader />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <RecommendationCard />
+        <LearnStreakTracker />
+        <LearnLessonsSection />
+        <LearnVideosCarousel />
+      </ScrollView>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    padding: 24,
+    backgroundColor: Colors.background,
   },
-  header: {
-    alignItems: "center",
-    paddingTop: 48,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: 24,
-    ...Fonts.bold,
-    color: Colors.text,
+  scrollContent: {
+    paddingBottom: 32,
   },
 });
-
-export default Learn;
