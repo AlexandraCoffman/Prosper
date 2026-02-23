@@ -8,6 +8,7 @@ import { Fonts } from '../../styles/fonts';
 import LargePieChart from '../../components/large-pie-chart';
 import List from '../../components/list';
 import { CreateBudgetButton } from '../../components/button';
+import Card from '../../components/card';
 
 export default function Budget() {
   return (
@@ -34,13 +35,32 @@ export default function Budget() {
         <LargePieChart showLegend={true} />
 
         {/* Needs */}
-        <List
+        {/*<List
           title="Needs"
           items={[
             { title: 'XXXXXX', subtitle: 'XXX% of paycheck', amount: '$XXX' },
             { title: 'XXXXX', subtitle: 'XX% of paycheck', amount: '$XX' },
             { title: 'XXXX', subtitle: 'X% of paycheck', amount: '$X' },
           ]}
+        />
+        */}
+        <Card
+          header="Needs"
+          body={[{
+            title: 'XXXXXX',
+            desc: 'XXX% of paycheck',
+            value: '$XXX',
+          }, {
+            title: 'XXXXX',
+            desc: 'XX% of paycheck',
+            value: '$XX',
+          }, {
+            title: 'XXXX',
+            desc: 'X% of paycheck',
+            value: '$X',
+          }]}
+          onPress={() => {}}
+          isNav={true}
         />
 
         {/* Needs/Wants/Savings View */}
