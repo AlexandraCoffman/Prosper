@@ -1,11 +1,29 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import MeterCard from "../../../components/meter-card";
 import LargePieChart from "../../../components/large-pie-chart";
 import { Fonts } from "../../../styles/fonts";
+import { Colors } from "../../../styles/colors";
 
-const SavingsGoals = () => {
+interface SavingsGoalsProps {
+  onBack?: () => void;
+}
+
+const SavingsGoals = ({ onBack }: SavingsGoalsProps) => {
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          {onBack ? (
+            <Pressable onPress={onBack} style={styles.backButton}>
+              <Text style={styles.backButtonText}>←</Text>
+            </Pressable>
+          ) : null}
+        </View>
+        <TouchableOpacity style={[styles.headerRight, { alignItems: "flex-end" }]}>
+          <Ionicons name="settings-outline" size={22} color={Colors.text} />
+        </TouchableOpacity>
+      </View>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -57,9 +75,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flex: 1,
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: Colors.primary,
+    fontWeight: "500",
+  },
   scrollContent: {
     padding: 16,
-    paddingTop: 48,
+    paddingTop: 8,
     paddingBottom: 24,
   },
   title: {

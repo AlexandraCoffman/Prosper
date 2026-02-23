@@ -60,11 +60,8 @@ export default function App() {
   if (screen === "savings-goals") {
     return (
       <View style={styles.container}>
-        <Pressable style={styles.backButton} onPress={() => setScreen("home")}>
-          <Text style={styles.backButtonText}>←</Text>
-        </Pressable>
         <View style={styles.screenContent}>
-          <SavingsGoals />
+          <SavingsGoals onBack={() => setScreen("home")} />
         </View>
         <StatusBar style="auto" />
       </View>
@@ -109,19 +106,6 @@ const styles = StyleSheet.create({
     color: Colors.background,
     fontSize: 16,
     fontWeight: "600",
-  },
-  backButton: {
-    position: "absolute",
-    top: 56,
-    left: 16,
-    zIndex: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: Colors.primary,
-    fontWeight: "500",
   },
   screenContent: {
     flex: 1,
