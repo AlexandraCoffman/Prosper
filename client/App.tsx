@@ -1,14 +1,15 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
 import { useFonts } from "expo-font";
-import ProsperButton from "./components/button";
-import CalendarPicker from "./components/calendar-picker";
-import Slider from "./components/slider";
 import SavingsGoals from "./app/tabs/dashboard/savings-goals";
+import Dashboard from "./app/tabs/dashboard/dashboard";
+import Budget from "./app/tabs/budget";
+import Accounts from "./app/tabs/accounts";
+import Transactions from "./app/tabs/transactions";
+import Learn from "./app/tabs/learn";
 import { Colors } from "./styles/colors";
 import BottomNav from "./components/nav-bar";
-import Budget from "./app/tabs/budget";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
@@ -34,25 +35,24 @@ export default function App() {
 
     fetchMessage();
   }, []);
-  // Bottom nav bar links
+  // Bottom nav bar → tab components (client/app/tabs/)
   const renderScreen = () => {
     switch (currentScreen) {
+      case "Dashboard":
+        return (
+          <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />
+        );
+      case "Accounts":
+        return <Accounts />;
+      case "Transactions":
+        return <Transactions />;
       case "Budget":
         return <Budget />;
-      case "Dashboard":
+      case "Learn":
+        return <Learn />;
       default:
         return (
-          <>
-            <ProsperButton />
-            <Pressable
-              style={styles.navButton}
-              onPress={() => setScreen("savings-goals")}
-            >
-              <Text style={styles.navButtonText}>Savings Goals</Text>
-            </Pressable>
-            <Slider />
-            <CalendarPicker />
-          </>
+          <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />
         );
     }
   };
@@ -92,20 +92,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
-  },
-  navButton: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginVertical: 8,
-  },
-  navButtonText: {
-    color: Colors.background,
-    fontSize: 16,
-    fontWeight: "600",
   },
   screenContent: {
     flex: 1,
