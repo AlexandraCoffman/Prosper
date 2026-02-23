@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import SmallPieChart from "../../../components/small-pie-chart";
 import MeterCard from "../../../components/meter-card";
+import LargePieChart from "../../../components/large-pie-chart";
 
 const SavingsGoals = () => {
   return (
@@ -14,9 +14,11 @@ const SavingsGoals = () => {
           Great job, ____! You're getting one step closer to achieving your
           savings goals every month!
         </Text>
-        <View style={styles.pieChartContainer}>
-          <SmallPieChart />
-        </View>
+        <LargePieChart
+          showLegend={true}
+          showCenterText={false}
+          centerImage={require("../../../assets/plant-full.png")}
+        />
         {/* 
         This will eventually be an interable going over all the users' savings goals 
         Props will be populated from db

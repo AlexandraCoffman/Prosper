@@ -1,16 +1,40 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../styles/colors';
-import { Fonts } from '../styles/fonts';
+import React from "react";
+import {
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { Colors } from "../styles/colors";
+import { Fonts } from "../styles/fonts";
+
+type DonutChartProps = {
+  showCenterText?: boolean;
+  centerImage?: ImageSourcePropType;
+};
 
 // Donut budget chart
-const DonutChart = () => {
+const DonutChart = ({
+  showCenterText = true,
+  centerImage,
+}: DonutChartProps) => {
   return (
     <View style={styles.donutContainer}>
       <View style={styles.budgetRingOuter}>
         <View style={styles.budgetRingInner}>
-          <Text style={styles.budgetDonutText}>Budget</Text>
-          <Text style={styles.budgetDonutAmount}>$0</Text>
+          {centerImage ? (
+            <Image
+              source={centerImage}
+              style={styles.centerImage}
+              resizeMode="contain"
+            />
+          ) : showCenterText ? (
+            <>
+              <Text style={styles.budgetDonutText}>Budget</Text>
+              <Text style={styles.budgetDonutAmount}>$0</Text>
+            </>
+          ) : null}
         </View>
       </View>
     </View>
@@ -26,13 +50,18 @@ const LegendItem = ({ color, label }: { color: string; label: string }) => (
 
 type LargePieChartProps = {
   showLegend?: boolean;
+  showCenterText?: boolean;
+  centerImage?: ImageSourcePropType;
 };
 
-export default function LargePieChart({ showLegend = true }: LargePieChartProps) {
+export default function LargePieChart({
+  showLegend = true,
+  showCenterText = true,
+  centerImage,
+}: LargePieChartProps) {
   return (
     <>
-      <DonutChart />
-      {/* Legend */}
+      <DonutChart showCenterText={showCenterText} centerImage={centerImage} />
       {showLegend && (
         <View style={styles.legendContainer}>
           <LegendItem color={Colors.primary} label="Needs" />
@@ -46,7 +75,7 @@ export default function LargePieChart({ showLegend = true }: LargePieChartProps)
 
 const styles = StyleSheet.create({
   donutContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
   },
   budgetRingOuter: {
@@ -54,16 +83,20 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: 130,
     backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   budgetRingInner: {
     width: 200,
     height: 200,
     borderRadius: 100,
     backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  centerImage: {
+    width: 120,
+    height: 120,
   },
   budgetDonutText: {
     fontSize: 16,
@@ -76,14 +109,14 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   legendContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "100%",
     marginBottom: 24,
   },
   legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginHorizontal: 12,
   },
   legendDot: {
