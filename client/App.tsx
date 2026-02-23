@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { useFonts } from "expo-font";
 import SavingsGoals from "./app/tabs/dashboard/savings-goals";
 import Dashboard from "./app/tabs/dashboard/dashboard";
-import Budget from "./app/tabs/budget";
+import Budget from "./app/tabs/budget/budget";
 import Accounts from "./app/tabs/accounts";
 import Transactions from "./app/tabs/transactions";
 import Learn from "./app/tabs/learn";
 import { Colors } from "./styles/colors";
 import BottomNav from "./components/nav-bar";
+import MonthlyEarnings from "./app/tabs/budget/monthly-earnings";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
@@ -40,19 +41,29 @@ export default function App() {
     switch (currentScreen) {
       case "Dashboard":
         return (
-          <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />
+          <Dashboard
+            onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+          />
         );
       case "Accounts":
         return <Accounts />;
       case "Transactions":
         return <Transactions />;
       case "Budget":
-        return <Budget />;
+        return (
+          <Budget 
+            onNavigateToEstimateMonthlyEarnings={() => setCurrentScreen("MonthlyEarnings")} 
+          />
+        );
+      case "MonthlyEarnings":
+        return <MonthlyEarnings onBack={() => setCurrentScreen("Budget")} />;
       case "Learn":
         return <Learn />;
       default:
         return (
-          <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />
+          <Dashboard
+            onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+          />
         );
     }
   };
@@ -74,9 +85,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        {renderScreen()}
-      </View>
+      <View style={styles.content}>{renderScreen()}</View>
       <BottomNav currentScreen={currentScreen} setScreen={setCurrentScreen} />
       <StatusBar style="auto" />
     </View>

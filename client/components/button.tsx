@@ -6,6 +6,9 @@ interface ProsperButtonProps {
   onPress: () => void;
   text?: string;
 }
+interface CreateBudgetButtonProps {
+  onPress?: () => void;
+}
 
 const ProsperButton = ({ onPress, text }: ProsperButtonProps) => {
   return (
@@ -18,9 +21,9 @@ const ProsperButton = ({ onPress, text }: ProsperButtonProps) => {
 export default ProsperButton;
 
 // Create Budget Button
-export function CreateBudgetButton() {
+export const CreateBudgetButton = ({ onPress }: CreateBudgetButtonProps) => {
   return (
-    <TouchableOpacity style={styles.createButton}>
+    <TouchableOpacity onPress={onPress} style={styles.createButton}>
       <Text style={styles.createButtonText}>Create Budget</Text>
     </TouchableOpacity>
   );
