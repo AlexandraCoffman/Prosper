@@ -1,14 +1,20 @@
 // Alexandra Coffman - Budget Tab
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../styles/colors';
-import { Fonts } from '../../styles/fonts';
-import LargePieChart from '../../components/large-pie-chart';
-import List from '../../components/list';
-import { CreateBudgetButton } from '../../components/button';
-import Card from '../../components/card';
+import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "../../styles/colors";
+import { Fonts } from "../../styles/fonts";
+import LargePieChart from "../../components/large-pie-chart";
+import List from "../../components/list";
+import { CreateBudgetButton } from "../../components/button";
+import Card from "../../components/card";
 
 export default function Budget() {
   return (
@@ -23,12 +29,14 @@ export default function Budget() {
         </TouchableOpacity>
 
         {/* Settings */}
-        <TouchableOpacity style={[styles.headerRightSide, { alignItems: 'flex-end' }]}>
+        <TouchableOpacity
+          style={[styles.headerRightSide, { alignItems: "flex-end" }]}
+        >
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
@@ -46,21 +54,25 @@ export default function Budget() {
         */}
         <Card
           header="Needs"
-          body={[{
-            title: 'XXXXXX',
-            desc: 'XXX% of paycheck',
-            value: '$XXX',
-          }, {
-            title: 'XXXXX',
-            desc: 'XX% of paycheck',
-            value: '$XX',
-          }, {
-            title: 'XXXX',
-            desc: 'X% of paycheck',
-            value: '$X',
-          }]}
+          body={[
+            {
+              title: "XXXXXX",
+              desc: "XXX% of paycheck",
+              value: "$XXX",
+            },
+            {
+              title: "XXXXX",
+              desc: "XX% of paycheck",
+              value: "$XX",
+            },
+            {
+              title: "XXXX",
+              desc: "X% of paycheck",
+              value: "$X",
+            },
+          ]}
           onPress={() => {}}
-          isNav={true}
+          isAdd={true}
         />
 
         {/* Needs/Wants/Savings View */}
@@ -80,15 +92,15 @@ export default function Budget() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '90%',
+    width: "90%",
     marginTop: 35,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 24,
-    paddingTop: 60, 
+    paddingTop: 60,
     paddingBottom: 10,
   },
   headerRightSide: {
@@ -96,9 +108,9 @@ const styles = StyleSheet.create({
   },
   headerDateContainer: {
     flex: 2,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerDate: {
     fontSize: 18,
@@ -107,10 +119,10 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   scrollViewContent: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   viewSwitch: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 15,
   },
   dotView: {

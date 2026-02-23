@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,16 +13,20 @@ interface CardProps {
   header: string;
   body: CardBodyItem[];
   isNav?: boolean;
+  isAdd?: boolean;
   onPress?: () => void;
 }
 
-const Card = ({ header, body, isNav, onPress }: CardProps) => {
+const Card = ({ header, body, isNav, isAdd, onPress }: CardProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>{header}</Text>
         {isNav && (
           <Ionicons name="chevron-forward" size={18} color={Colors.text} />
+        )}
+        {isAdd && (
+          <Ionicons name="add-circle-outline" size={18} color={Colors.text} />
         )}
       </View>
       <View style={styles.bodyContainer}>
@@ -38,7 +42,18 @@ const Card = ({ header, body, isNav, onPress }: CardProps) => {
                   <Text style={styles.itemDesc}>{item.desc}</Text>
                 </View>
               </View>
-              <Text style={styles.itemValue}>{item.value}</Text>
+              <View style={styles.itemValueContainer}>
+                <Text style={styles.itemValue}>{item.value}</Text>
+                {isAdd && (
+                  <Pressable onPress={onPress}>
+                    <Ionicons
+                      name="square-outline"
+                      size={18}
+                      color={Colors.text}
+                    />
+                  </Pressable>
+                )}
+              </View>
             </View>
             {index < body.length - 1 && <View style={styles.separator} />}
           </>
@@ -112,6 +127,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     ...Fonts.regular,
     color: Colors.text,
+  },
+  itemValueContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   separator: {
     height: 3,
