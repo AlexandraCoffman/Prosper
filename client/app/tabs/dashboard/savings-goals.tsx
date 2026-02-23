@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import MeterCard from "../../../components/meter-card";
 import LargePieChart from "../../../components/large-pie-chart";
+import { Fonts } from "../../../styles/fonts";
 
 const SavingsGoals = () => {
   return (
@@ -63,12 +64,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
     marginBottom: 16,
+    ...Fonts.bold,
   },
   description: {
     fontSize: 15,
     marginBottom: 16,
+    ...Fonts.regular,
   },
   pieChartContainer: {
     flexDirection: "row",

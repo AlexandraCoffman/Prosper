@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Colors } from "../styles/colors";
+import { Fonts } from "../styles/fonts";
 
 interface MeterCardProps {
   title: string;
@@ -43,10 +44,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
+    ...Fonts.regular,
   },
   title: {
     fontSize: 20,
     marginBottom: 8,
+    ...Fonts.bold,
   },
 });
 
