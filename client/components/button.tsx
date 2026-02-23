@@ -2,10 +2,15 @@ import { Pressable, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
 
-const ProsperButton = () => {
+interface ProsperButtonProps {
+  onPress: () => void;
+  text?: string;
+}
+
+const ProsperButton = ({ onPress, text }: ProsperButtonProps) => {
   return (
-    <Pressable onPress={() => {}} style={styles.button}>
-      <Text style={styles.text}>Click me</Text>
+    <Pressable onPress={onPress} style={styles.button}>
+      <Text style={styles.text}>{text || "Click me"}</Text>
     </Pressable>
   );
 };
@@ -38,8 +43,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent,
     paddingVertical: 16,
     borderRadius: 30,
-    width: '80%',
-    alignItems: 'center',
+    width: "80%",
+    alignItems: "center",
   },
   createButtonText: {
     fontSize: 16,
