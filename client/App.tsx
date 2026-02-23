@@ -1,15 +1,25 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { useState, useEffect } from "react";
+import { useFonts } from "expo-font";
 import ProsperButton from "./components/button";
 import CalendarPicker from "./components/calendar-picker";
 import Slider from "./components/slider";
 import SavingsGoals from "./app/tabs/dashboard/savings-goals";
 import { Colors } from "./styles/colors";
+import BottomNav from "./components/nav-bar";
+import Budget from "./app/tabs/budget";
 
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState("Dashboard");
   const [message, setMessage] = useState("Loading...");
   const [screen, setScreen] = useState<"home" | "savings-goals">("home");
+  // Set global font for app
+  const [fontsLoaded] = useFonts({
+    "Libre Caslon Text": require("./styles/LibreCaslonText-Regular.ttf"),
+    "Libre Caslon Text Bold": require("./styles/LibreCaslonText-Bold.ttf"),
+    "Libre Caslon Text Italic": require("./styles/LibreCaslonText-Italic.ttf"),
+  });
 
   useEffect(() => {
     const fetchMessage = async () => {
@@ -24,6 +34,28 @@ export default function App() {
 
     fetchMessage();
   }, []);
+  // Bottom nav bar links
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case "Budget":
+        return <Budget />;
+      case "Dashboard":
+      default:
+        return (
+          <>
+            <ProsperButton />
+            <Pressable
+              style={styles.navButton}
+              onPress={() => setScreen("savings-goals")}
+            >
+              <Text style={styles.navButtonText}>Savings Goals</Text>
+            </Pressable>
+            <Slider />
+            <CalendarPicker />
+          </>
+        );
+    }
+  };
 
   if (screen === "savings-goals") {
     return (
@@ -39,18 +71,16 @@ export default function App() {
     );
   }
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
-      {/* <Text>{message}</Text> */}
-      <ProsperButton />
-      <Pressable
-        style={styles.navButton}
-        onPress={() => setScreen("savings-goals")}
-      >
-        <Text style={styles.navButtonText}>Savings Goals</Text>
-      </Pressable>
-      <Slider />
-      <CalendarPicker />
+      <View style={styles.content}>
+        {renderScreen()}
+      </View>
+      <BottomNav currentScreen={currentScreen} setScreen={setCurrentScreen} />
       <StatusBar style="auto" />
     </View>
   );
@@ -60,6 +90,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  content: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
