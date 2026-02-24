@@ -11,6 +11,7 @@ import Learn from "./app/tabs/learn";
 import { Colors } from "./styles/colors";
 import BottomNav from "./components/nav-bar";
 import MonthlyEarnings from "./app/tabs/budget/monthly-earnings";
+import PickMonthly from "./app/tabs/budget/pick-monthly";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
@@ -56,7 +57,22 @@ export default function App() {
           />
         );
       case "MonthlyEarnings":
-        return <MonthlyEarnings onBack={() => setCurrentScreen("Budget")} />;
+        return (
+          <MonthlyEarnings 
+            progress={20}
+            onBack={() => setCurrentScreen("Budget")} 
+            onExit={() => setCurrentScreen("Budget")} 
+            onNavigateToIncomeSplit={() => setCurrentScreen("PickMonthly")}
+          />
+        );
+      case "PickMonthly":
+        return (
+          <PickMonthly
+          progress={40}
+          onBack={() => setCurrentScreen("MonthlyEarnings")} 
+          onExit={() => setCurrentScreen("Budget")} 
+        />
+        )
       case "Learn":
         return <Learn />;
       default:

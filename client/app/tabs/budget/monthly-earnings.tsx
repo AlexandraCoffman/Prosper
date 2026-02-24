@@ -1,42 +1,36 @@
-// Alexandra Coffman - Estimate Monthly Earnings Screen
 import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Pressable,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Fonts } from "../../../styles/fonts";
 import { Colors } from "../../../styles/colors";
+import Card from "../../../components/card";
+import Button, { ContinueButton } from "../../../components/button";
+import ProgressHeader from "../../../components/progress-header";
 
 interface MonthlyEarningsProps {
+  onNavigateToIncomeSplit?: () => void;
   onBack?: () => void;
+  onExit?: () => void;
+  progress?: number;
 }
 
-export default function MonthlyEarnings({ onBack }: MonthlyEarningsProps) {
+export default function MonthlyEarnings({ 
+  onBack, 
+  onExit, 
+  progress = 20, 
+  onNavigateToIncomeSplit 
+}: MonthlyEarningsProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-            {onBack && (
-            <Pressable onPress={onBack} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color={Colors.text} />
-            </Pressable>
-          )}
-        </View>
-        <View style={styles.progressBarContainer}>
-          <View style={styles.progressBarFill} />
-        </View>
-
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={onBack} style={styles.exitButton}>
-            <Ionicons name="close" size={28} color={Colors.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <ProgressHeader 
+        onBack={onBack} 
+        onExit={onExit} 
+        progress={progress} 
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -47,6 +41,39 @@ export default function MonthlyEarnings({ onBack }: MonthlyEarningsProps) {
           If you’ve had an seasonal or irregular income, click the earnings from
           each month and we’ll handle the division
         </Text>
+        <Card
+          header="October"
+          isAdd={true}
+          body={[
+            {
+              title: "University of Pittsburgh",
+              desc: "October 30",
+              value: "+$1500.81",
+            },
+            {
+              title: "University of Pittsburgh",
+              desc: "October 12",
+              value: "+$1500.81",
+            },
+          ]}
+        />
+        <Card
+          header="September"
+          isAdd={true}
+          body={[
+            {
+              title: "University of Pittsburgh",
+              desc: "September 30",
+              value: "+$1500.81",
+            },
+            {
+              title: "University of Pittsburgh",
+              desc: "September 12",
+              value: "+$1286.81",
+            },
+          ]}
+        />
+        <ContinueButton onPress={onNavigateToIncomeSplit} />
       </ScrollView>
     </View>
   );
@@ -56,57 +83,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    padding: 24,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 50,
-    paddingBottom: 10,
-  },
-  headerLeft: {
-    flex: 1,
-    alignItems: "flex-start",
-  },
-  headerRight: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  backButton: {
-    padding: 4,
-  },
-  exitButton: {
-    padding: 4,
-  },
-  progressBarContainer: {
-    flex: 4,
-    height: 8,
-    backgroundColor: Colors.accent,
-    overflow: "hidden",
-    borderRadius: 12,
-  },
-  progressBarFill: {
-    width: "20%",
-    height: "100%",
-    backgroundColor: Colors.primary,
+    paddingHorizontal: 24,
+    backgroundColor: "#F9F9F9",
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     ...Fonts.regular,
     color: Colors.text,
-    marginTop: 0,
-    alignContent: "flex-start",
+    marginTop: 10,
+    marginBottom: 8,
   },
   scrollContent: {
-    padding: 8,
-    paddingTop: 8,
-    paddingBottom: 24,
+    paddingBottom: 40,
   },
   description: {
     fontSize: 15,
     ...Fonts.regular,
     color: Colors.text,
-    marginTop: 8,
+    marginBottom: 24, 
+    lineHeight: 22,
   },
 });

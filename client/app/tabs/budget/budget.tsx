@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";

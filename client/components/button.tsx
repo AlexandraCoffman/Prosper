@@ -9,6 +9,9 @@ interface ProsperButtonProps {
 interface CreateBudgetButtonProps {
   onPress?: () => void;
 }
+interface ContinueButtonProps {
+  onPress?: () => void;
+}
 
 const ProsperButton = ({ onPress, text }: ProsperButtonProps) => {
   return (
@@ -25,6 +28,14 @@ export const CreateBudgetButton = ({ onPress }: CreateBudgetButtonProps) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.createButton}>
       <Text style={styles.createButtonText}>Create Budget</Text>
+    </TouchableOpacity>
+  );
+}
+
+export const ContinueButton = ({ onPress }: ContinueButtonProps) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.createButton}>
+      <Text style={styles.createButtonText}>Continue</Text>
     </TouchableOpacity>
   );
 }
@@ -48,6 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: "80%",
     alignItems: "center",
+    alignSelf: "center",
   },
   createButtonText: {
     fontSize: 16,
