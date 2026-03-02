@@ -9,6 +9,7 @@ import {
 import { useSignUp } from "@clerk/clerk-expo";
 import { Colors } from "../../styles/colors";
 import ProsperButton from "../../components/button";
+import { ProsperPicker } from "../../components/picker";
 
 type SignUpScreenProps = {
   onSwitchToSignIn: () => void;
@@ -198,34 +199,34 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <Text style={styles.subtitle}>
               Select all of the options below that apply to you
             </Text>
-            <View style={styles.chipRow}>
-              {[
-                "I currently rent",
-                "I am married",
-                "I have kids",
-                "I have a car",
-                "I pay student loans",
-                "I am a dependent",
-              ].map((label) => (
-                <TouchableOpacity
-                  key={label}
-                  style={[
-                    styles.chip,
-                    primaryGoal === label && styles.chipSelected,
-                  ]}
-                  onPress={() => setPrimaryGoal(label)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      primaryGoal === label && styles.chipTextSelected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ProsperPicker
+              items={[
+                {
+                  label: "I currently rent",
+                  onPress: () => setPrimaryGoal("I currently rent"),
+                },
+                {
+                  label: "I am married",
+                  onPress: () => setPrimaryGoal("I am married"),
+                },
+                {
+                  label: "I have kids",
+                  onPress: () => setPrimaryGoal("I have kids"),
+                },
+                {
+                  label: "I have a car",
+                  onPress: () => setPrimaryGoal("I have a car"),
+                },
+                {
+                  label: "I pay student loans",
+                  onPress: () => setPrimaryGoal("I pay student loans"),
+                },
+                {
+                  label: "I am a dependent",
+                  onPress: () => setPrimaryGoal("I am a dependent"),
+                },
+              ]}
+            />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
@@ -248,35 +249,35 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <Text style={styles.subtitle}>
               Select all of the options below that apply to you
             </Text>
-            <View style={styles.chipRow}>
-              {[
-                "Full-time job",
-                "Part-time job",
-                "Paid internship",
-                "Scholarships/Grants",
-                "Loans",
-                "Parent/Guardian assistance",
-                "Government assistance",
-              ].map((label) => (
-                <TouchableOpacity
-                  key={label}
-                  style={[
-                    styles.chip,
-                    supportNeed === label && styles.chipSelected,
-                  ]}
-                  onPress={() => setSupportNeed(label)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      supportNeed === label && styles.chipTextSelected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ProsperPicker
+              items={[
+                {
+                  label: "Full-time job",
+                  onPress: () => setSupportNeed("Full-time job"),
+                },
+                {
+                  label: "Part-time job",
+                  onPress: () => setSupportNeed("Part-time job"),
+                },
+                {
+                  label: "Paid internship",
+                  onPress: () => setSupportNeed("Paid internship"),
+                },
+                {
+                  label: "Scholarships/Grants",
+                  onPress: () => setSupportNeed("Scholarships/Grants"),
+                },
+                { label: "Loans", onPress: () => setSupportNeed("Loans") },
+                {
+                  label: "Parent/Guardian assistance",
+                  onPress: () => setSupportNeed("Parent/Guardian assistance"),
+                },
+                {
+                  label: "Government assistance",
+                  onPress: () => setSupportNeed("Government assistance"),
+                },
+              ]}
+            />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
@@ -299,35 +300,38 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <Text style={styles.subtitle}>
               Select the financial goals you would like to achieve
             </Text>
-            <View style={styles.chipRow}>
-              {[
-                "Build an emergency fund",
-                "Pay off debt",
-                "Save for a large purchase",
-                "Save for a small purchase",
-                "Plan a trip",
-                "Manage my finances",
-                "Something else",
-              ].map((label) => (
-                <TouchableOpacity
-                  key={label}
-                  style={[
-                    styles.chip,
-                    primaryGoal === label && styles.chipSelected,
-                  ]}
-                  onPress={() => setPrimaryGoal(label)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      primaryGoal === label && styles.chipTextSelected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ProsperPicker
+              items={[
+                {
+                  label: "Build an emergency fund",
+                  onPress: () => setPrimaryGoal("Build an emergency fund"),
+                },
+                {
+                  label: "Pay off debt",
+                  onPress: () => setPrimaryGoal("Pay off debt"),
+                },
+                {
+                  label: "Save for a large purchase",
+                  onPress: () => setPrimaryGoal("Save for a large purchase"),
+                },
+                {
+                  label: "Save for a small purchase",
+                  onPress: () => setPrimaryGoal("Save for a small purchase"),
+                },
+                {
+                  label: "Plan a trip",
+                  onPress: () => setPrimaryGoal("Plan a trip"),
+                },
+                {
+                  label: "Manage my finances",
+                  onPress: () => setPrimaryGoal("Manage my finances"),
+                },
+                {
+                  label: "Something else",
+                  onPress: () => setPrimaryGoal("Something else"),
+                },
+              ]}
+            />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <TouchableOpacity
               style={[styles.button, styles.secondaryButton]}
