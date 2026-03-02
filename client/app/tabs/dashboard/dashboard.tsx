@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
+import { StyleSheet, Text, View, Pressable, ScrollView, TouchableOpacity } from "react-native";
 import ProsperButton from "../../../components/button";
 import Slider from "../../../components/slider";
 import CalendarPicker from "../../../components/calendar-picker";
