@@ -7,12 +7,12 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
+//import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../styles/colors";
 import { Fonts } from "../../styles/fonts";
 import LargePieChart from "../../components/large-pie-chart";
-import List from "../../components/list";
+//import List from "../../components/list";
 import { CreateBudgetButton } from "../../components/button";
 import Card from "../../components/card";
 

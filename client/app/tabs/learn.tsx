@@ -1,16 +1,16 @@
 import React from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { Colors } from "../../styles/colors";
-import LearnHeader from "../../components/learn-header";
-import RecommendationCard from "../../components/learn-recommendation-card";
-import LearnStreakTracker from "../../components/learn-streak-tracker";
-import LearnLessonsSection from "../../components/learn-lessons-section";
-import LearnVideosCarousel from "../../components/learn-videos-carousel";
+//import LearnHeader from "../../components/learn-header";
+//import RecommendationCard from "../../components/learn-recommendation-card";
+//import LearnStreakTracker from "../../components/learn-streak-tracker";
+//import LearnLessonsSection from "../../components/learn-lessons-section";
+//import LearnVideosCarousel from "../../components/learn-videos-carousel";
 
 export default function Learn() {
   return (
     <View style={styles.container}>
-      <LearnHeader />
+      {/*<LearnHeader />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -19,7 +19,7 @@ export default function Learn() {
         <LearnStreakTracker />
         <LearnLessonsSection />
         <LearnVideosCarousel />
-      </ScrollView>
+      </ScrollView>*/}
     </View>
   );
 }

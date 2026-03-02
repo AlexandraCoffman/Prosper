@@ -105,6 +105,10 @@ export default function App() {
     }
   };
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   if (screen === "savings-goals") {
     return (
       <View style={styles.container}>
@@ -114,10 +118,6 @@ export default function App() {
         <StatusBar style="auto" />
       </View>
     );
-  }
-
-  if (!fontsLoaded) {
-    return null;
   }
 
   return (

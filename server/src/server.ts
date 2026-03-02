@@ -1,5 +1,8 @@
 import express, { Request, Response, Application } from "express";
 import cors from "cors";
+import setup from "./middleware/setup";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -15,9 +18,14 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "API Route not found" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Test endpoint: http://localhost:${PORT}/api/test`);
-});
+const start = async () => {
+  await setup();
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Test endpoint: http://localhost:${PORT}/api/test`);
+  });
+};
+
+start();
 
 export default app;
