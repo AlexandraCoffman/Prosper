@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
 import { Colors } from "../../styles/colors";
@@ -15,14 +14,7 @@ type SignUpScreenProps = {
   onSwitchToSignIn: () => void;
 };
 
-type SignUpStep =
-  | "welcome"
-  | "name"
-  | "email"
-  | "password"
-  | "info"
-  | "support"
-  | "goals";
+type SignUpStep = "name" | "email" | "password" | "info" | "support" | "goals";
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const { signUp, setActive, isLoaded } = useSignUp();
@@ -34,7 +26,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [supportNeed, setSupportNeed] = useState<string | null>(null);
   const [primaryGoal, setPrimaryGoal] = useState<string | null>(null);
-  const [step, setStep] = useState<SignUpStep>("welcome");
+  const [step, setStep] = useState<SignUpStep>("name");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,20 +88,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
 
   const renderContent = () => {
     switch (step) {
-      case "welcome":
-        return (
-          <>
-            <Text style={styles.title}>Create your account</Text>
-            <Text style={styles.subtitle}>
-              Let&apos;s set up your Prosper account in a few quick steps.
-            </Text>
-            <ProsperButton
-              onPress={() => {
-                setStep("name");
-              }}
-            />
-          </>
-        );
       case "name":
         return (
           <>
@@ -132,6 +110,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               onChangeText={setLastName}
             />
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 setStep("email");
               }}
@@ -163,13 +142,14 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 setStep("password");
               }}
             />
             <TouchableOpacity
               style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("welcome")}
+              onPress={() => goToNext("name")}
             >
               <Text style={styles.secondaryButtonText}>Back</Text>
             </TouchableOpacity>
@@ -198,6 +178,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 handleCollectPassword();
               }}
@@ -247,6 +228,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             </View>
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 goToNext("support");
               }}
@@ -297,6 +279,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             </View>
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 goToNext("goals");
               }}
@@ -324,7 +307,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 "Save for a small purchase",
                 "Plan a trip",
                 "Manage my finances",
-                "Something else"
+                "Something else",
               ].map((label) => (
                 <TouchableOpacity
                   key={label}
@@ -377,8 +360,9 @@ export default SignUpScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 24,
+    paddingTop: 64,
     backgroundColor: Colors.background,
   },
   title: {
