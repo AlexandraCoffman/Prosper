@@ -57,6 +57,10 @@ export default function App() {
     }
   };
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   if (screen === "savings-goals") {
     return (
       <View style={styles.container}>
@@ -68,15 +72,9 @@ export default function App() {
     );
   }
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        {renderScreen()}
-      </View>
+      <View style={styles.content}>{renderScreen()}</View>
       <BottomNav currentScreen={currentScreen} setScreen={setCurrentScreen} />
       <StatusBar style="auto" />
     </View>
