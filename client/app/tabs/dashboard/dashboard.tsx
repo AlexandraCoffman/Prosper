@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Pressable, ScrollView, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import ProsperButton from "../../../components/button";
 import Slider from "../../../components/slider";
 import CalendarPicker from "../../../components/calendar-picker";
@@ -32,15 +39,30 @@ export default function Dashboard({
         <SpendGraph />
       </View>
       <View style={styles.hero}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Text style={styles.sectionTitle}>SAVING GOALS</Text>
           <Pressable style={{ marginLeft: 8 }}>
             <Ionicons name="add-circle-outline" size={16} color={Colors.text} />
           </Pressable>
         </View>
-        <ProsperButton onPress={() => onNavigateToSavingsGoals?.()} />
-        <ProsperButton onPress={() => onNavigateToSavingsGoals?.()} />
-        <ProsperButton onPress={() => onNavigateToSavingsGoals?.()} />
+        <ProsperButton
+          text="Emergency Funds"
+          onPress={() => onNavigateToSavingsGoals?.()}
+        />
+        <ProsperButton
+          text="Vacation Funds"
+          onPress={() => onNavigateToSavingsGoals?.()}
+        />
+        <ProsperButton
+          text="Concert Funds"
+          onPress={() => onNavigateToSavingsGoals?.()}
+        />
       </View>
     </ScrollView>
   );
