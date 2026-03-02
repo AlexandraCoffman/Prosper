@@ -10,6 +10,7 @@ import { useSignUp } from "@clerk/clerk-expo";
 import { Colors } from "../../styles/colors";
 import ProsperButton from "../../components/button";
 import { ProsperPicker } from "../../components/picker";
+import ProgressHeader from "../../components/progress-header";
 
 type SignUpScreenProps = {
   onSwitchToSignIn: () => void;
@@ -30,6 +31,29 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const [step, setStep] = useState<SignUpStep>("name");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const STEP_ORDER: SignUpStep[] = [
+    "name",
+    "email",
+    "password",
+    "info",
+    "support",
+    "goals",
+  ];
+
+  const stepProgress = () => {
+    const idx = STEP_ORDER.indexOf(step);
+    return Math.round(((idx + 1) / STEP_ORDER.length) * 100);
+  };
+
+  const handleBack = () => {
+    const idx = STEP_ORDER.indexOf(step);
+    if (idx <= 0) {
+      onSwitchToSignIn();
+    } else {
+      goToNext(STEP_ORDER[idx - 1]);
+    }
+  };
 
   const goToNext = (next: SignUpStep) => {
     setError(null);
@@ -148,7 +172,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 setStep("password");
               }}
             />
-            <ProsperButton text="Back" onPress={() => goToNext("name")} ghost />
           </>
         );
       case "password":
@@ -178,11 +201,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               onPress={() => {
                 handleCollectPassword();
               }}
-            />
-            <ProsperButton
-              text="Back"
-              onPress={() => goToNext("email")}
-              ghost
             />
           </>
         );
@@ -227,11 +245,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               onPress={() => {
                 goToNext("support");
               }}
-            />
-            <ProsperButton
-              text="Back"
-              onPress={() => goToNext("password")}
-              ghost
             />
           </>
         );
@@ -278,7 +291,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 goToNext("goals");
               }}
             />
-            <ProsperButton text="Back" onPress={() => goToNext("info")} ghost />
           </>
         );
       case "goals":
@@ -321,11 +333,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               ]}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <ProsperButton
-              text="Back"
-              onPress={() => goToNext("support")}
-              ghost
-            />
           </>
         );
       default:
@@ -335,6 +342,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
 
   return (
     <View style={styles.container}>
+      <ProgressHeader
+        progress={stepProgress()}
+        onBack={handleBack}
+        onExit={onSwitchToSignIn}
+      />
       {renderContent()}
       <TouchableOpacity onPress={onSwitchToSignIn}>
         <Text style={styles.link}>
@@ -353,7 +365,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     paddingHorizontal: 24,
-    paddingTop: 64,
     backgroundColor: Colors.background,
   },
   title: {
