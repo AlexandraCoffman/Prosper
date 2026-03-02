@@ -7,10 +7,11 @@ interface CardBodyItem {
   title: string;
   desc: string;
   value: string;
+  iconName?: React.ComponentProps<typeof Ionicons>['name'];
 }
 
 interface CardProps {
-  header: string;
+  header?: string;
   body: CardBodyItem[];
   isNav?: boolean;
   isAdd?: boolean;
@@ -20,22 +21,29 @@ interface CardProps {
 const Card = ({ header, body, isNav, isAdd, onPress }: CardProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>{header}</Text>
-        {isNav && (
-          <Ionicons name="chevron-forward" size={18} color={Colors.text} />
-        )}
-        {isAdd && (
-          <Ionicons name="add-circle-outline" size={25} color={Colors.text} />
-        )}
-      </View>
+      {header && (
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>{header}</Text>
+          {isNav && (
+            <Ionicons name="chevron-forward" size={18} color={Colors.text} />
+          )}
+          {isAdd && (
+            <Ionicons name="add-circle-outline" size={25} color={Colors.text} />
+          )}
+        </View>
+      )}
+
       <View style={styles.bodyContainer}>
         {body.map((item: CardBodyItem, index: number) => (
           <View key={index}>
             <View style={styles.itemContainer}>
               <View style={styles.itemHeaderContainer}>
                 <View style={styles.iconContainer}>
-                  <Ionicons name="cash-outline" size={25} color={Colors.text} />
+                  <Ionicons 
+                    name={item.iconName || "cash-outline"} 
+                    size={25} 
+                    color={Colors.text} 
+                  />
                 </View>
                 <View style={styles.itemContentContainer}>
                   <Text style={styles.itemTitle} numberOfLines={1}>

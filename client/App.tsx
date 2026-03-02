@@ -4,14 +4,16 @@ import { useState, useEffect } from "react";
 import { useFonts } from "expo-font";
 import SavingsGoals from "./app/tabs/dashboard/savings-goals";
 import Dashboard from "./app/tabs/dashboard/dashboard";
-import Budget from "./app/tabs/budget/budget";
+import Budget from "./app/tabs/budget/budget-not-setup";
 import Accounts from "./app/tabs/accounts";
 import Transactions from "./app/tabs/transactions";
 import Learn from "./app/tabs/learn";
 import { Colors } from "./styles/colors";
 import BottomNav from "./components/nav-bar";
-import MonthlyEarnings from "./app/tabs/budget/monthly-earnings";
-import PickMonthly from "./app/tabs/budget/pick-monthly";
+import MonthlyEarnings from "./app/tabs/budget/budget-setup-1";
+import PickMonthly from "./app/tabs/budget/budget-setup-2";
+import Bills from "./app/tabs/budget/budget-setup-3";
+import IncomeSplit from "./app/tabs/budget/budget-setup-4";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
@@ -62,7 +64,7 @@ export default function App() {
             progress={20}
             onBack={() => setCurrentScreen("Budget")} 
             onExit={() => setCurrentScreen("Budget")} 
-            onNavigateToIncomeSplit={() => setCurrentScreen("PickMonthly")}
+            onNavigateToPickMonthly={() => setCurrentScreen("PickMonthly")}
           />
         );
       case "PickMonthly":
@@ -71,8 +73,27 @@ export default function App() {
           progress={40}
           onBack={() => setCurrentScreen("MonthlyEarnings")} 
           onExit={() => setCurrentScreen("Budget")} 
+          onNavigateToBills={() => setCurrentScreen("Bills")}
         />
-        )
+        );
+      case "Bills":
+        return (
+          <Bills
+            progress={60}
+            onBack={() => setCurrentScreen("PickMonthly")} 
+            onExit={() => setCurrentScreen("Budget")} 
+            onNavigateToIncomeSplit={() => setCurrentScreen("IncomeSplit")}
+          />
+        );
+      case "IncomeSplit":
+        return (
+          <IncomeSplit
+            progress={80}
+            onBack={() => setCurrentScreen("Bills")}
+            onExit={() => setCurrentScreen("Budget")}
+            onNavigateToBudgetPlan={() => setCurrentScreen("BudgetPlan")}
+          />
+        );
       case "Learn":
         return <Learn />;
       default:

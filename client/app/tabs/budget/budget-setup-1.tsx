@@ -12,7 +12,7 @@ import Button, { ContinueButton } from "../../../components/button";
 import ProgressHeader from "../../../components/progress-header";
 
 interface MonthlyEarningsProps {
-  onNavigateToIncomeSplit?: () => void;
+  onNavigateToPickMonthly?: () => void;
   onBack?: () => void;
   onExit?: () => void;
   progress?: number;
@@ -22,7 +22,7 @@ export default function MonthlyEarnings({
   onBack, 
   onExit, 
   progress = 20, 
-  onNavigateToIncomeSplit 
+  onNavigateToPickMonthly 
 }: MonthlyEarningsProps) {
   return (
     <View style={styles.container}>
@@ -73,7 +73,7 @@ export default function MonthlyEarnings({
             },
           ]}
         />
-        <ContinueButton onPress={onNavigateToIncomeSplit} />
+        <ContinueButton onPress={onNavigateToPickMonthly} />
       </ScrollView>
     </View>
   );
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9F9F9",
   },
   title: {
-    fontSize: 28,
+    fontSize: 25,
     ...Fonts.regular,
     color: Colors.text,
     marginTop: 10,
@@ -101,6 +101,5 @@ const styles = StyleSheet.create({
     ...Fonts.regular,
     color: Colors.text,
     marginBottom: 24, 
-    lineHeight: 22,
   },
 });
