@@ -148,12 +148,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 setStep("password");
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("name")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
+            <ProsperButton text="Back" onPress={() => goToNext("name")} ghost />
           </>
         );
       case "password":
@@ -184,12 +179,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 handleCollectPassword();
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
+            <ProsperButton
+              text="Back"
               onPress={() => goToNext("email")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
+              ghost
+            />
           </>
         );
       case "info":
@@ -234,12 +228,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 goToNext("support");
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
+            <ProsperButton
+              text="Back"
               onPress={() => goToNext("password")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
+              ghost
+            />
           </>
         );
       case "support":
@@ -285,12 +278,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
                 goToNext("goals");
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("info")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
+            <ProsperButton text="Back" onPress={() => goToNext("info")} ghost />
           </>
         );
       case "goals":
@@ -333,12 +321,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               ]}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
+            <ProsperButton
+              text="Back"
               onPress={() => goToNext("support")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
+              ghost
+            />
           </>
         );
       default:

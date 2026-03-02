@@ -6,6 +6,7 @@ interface ProsperButtonProps {
   onPress: () => void;
   text?: string;
   borderRadius?: number;
+  ghost?: boolean;
 }
 interface CreateBudgetButtonProps {
   onPress?: () => void;
@@ -14,10 +15,28 @@ interface ContinueButtonProps {
   onPress?: () => void;
 }
 
-const ProsperButton = ({ onPress, text, borderRadius }: ProsperButtonProps) => {
+const ProsperButton = ({
+  onPress,
+  text,
+  borderRadius,
+  ghost,
+}: ProsperButtonProps) => {
   return (
-    <Pressable onPress={onPress} style={[styles.button, { borderRadius: borderRadius ?? 999 }]}>
-      <Text style={styles.text}>{text || "Click me"}</Text>
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.button,
+        { borderRadius: borderRadius ?? 999 },
+        ghost && {
+          backgroundColor: "transparent",
+          borderWidth: 1,
+          borderColor: Colors.textSecondary,
+        },
+      ]}
+    >
+      <Text style={[styles.text, ghost && { color: Colors.text }]}>
+        {text || "Click me"}
+      </Text>
     </Pressable>
   );
 };
