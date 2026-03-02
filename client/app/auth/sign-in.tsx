@@ -82,13 +82,13 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSwitchToSignUp }) => {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={styles.buttonContainer}>
-        <ProsperButton onPress={() => {}} />
+        <ProsperButton onPress={() => {/* TODO: Handle sign in */}} />
       </View>
 
-      <TouchableOpacity onPress={onSwitchToSignUp}>
+      <TouchableOpacity>
         <Text style={styles.link}>
           Don&apos;t have an account?{" "}
-          <Text style={styles.linkEmphasis}>Sign up</Text>
+          <Text style={styles.linkEmphasis} onPress={() => onSwitchToSignUp()}>Sign up</Text>
         </Text>
       </TouchableOpacity>
     </View>
@@ -100,8 +100,9 @@ export default SignInScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 24,
+    paddingTop: 64,
     backgroundColor: Colors.background,
   },
   title: {

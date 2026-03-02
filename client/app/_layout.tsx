@@ -30,6 +30,7 @@ import MonthlyEarnings from "./tabs/budget/budget-setup-1";
 import PickMonthly from "./tabs/budget/budget-setup-2";
 import Bills from "./tabs/budget/budget-setup-3";
 import IncomeSplit from "./tabs/budget/budget-setup-4";
+import { Ionicons } from "@expo/vector-icons";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -130,7 +131,7 @@ function AppContent() {
           style={styles.signInClose}
           onPress={() => setScreen("home")}
         >
-          <Text style={styles.signInCloseText}>×</Text>
+          <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.screenContent}>
           <SignInScreen onSwitchToSignUp={() => {}} />
@@ -297,15 +298,12 @@ const styles = StyleSheet.create({
   },
   signInClose: {
     position: "absolute",
-    top: 48,
-    right: 24,
+    top: 64,
+    left: 24,
     zIndex: 10,
     backgroundColor: "#fff",
-    borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: Colors.textSecondary,
   },
   signInCloseText: {
     color: Colors.text,
