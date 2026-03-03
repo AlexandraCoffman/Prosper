@@ -1,19 +1,19 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import ProsperButton from "../../../components/button";
-import Slider from "../../../components/slider";
-import CalendarPicker from "../../../components/calendar-picker";
+import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
-import SpendGraph from "../../../components/spend-graph";
+import SpendGraph, { SpendingDataPoint } from "../../../components/spend-graph";
 import { Ionicons } from "@expo/vector-icons";
 import GoalCard from "../../../components/goal-card";
+
+// Mock spending data for spend graph
+// TODO: Reformat to follow DB schema
+const MOCK_SPENDING: SpendingDataPoint[] = [
+  { day: 1, amount: 85 },
+  { day: 8, amount: 210 },
+  { day: 15, amount: 145 },
+  { day: 22, amount: 310 },
+  { day: 29, amount: 275 },
+];
 
 interface DashboardProps {
   onNavigateToSavingsGoals?: () => void;
@@ -37,7 +37,7 @@ export default function Dashboard({
       </View>
       <View style={styles.hero}>
         <Text style={styles.sectionTitle}>INSIGHTS & TRANSACTIONS</Text>
-        <SpendGraph />
+        <SpendGraph totalSpending={789} data={MOCK_SPENDING} />
       </View>
       <View style={styles.hero}>
         <View
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 48,
-    paddingBottom: 16,
   },
   title: {
     fontSize: 24,
