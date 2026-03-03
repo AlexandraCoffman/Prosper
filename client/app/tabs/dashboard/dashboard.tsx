@@ -13,6 +13,7 @@ import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import SpendGraph from "../../../components/spend-graph";
 import { Ionicons } from "@expo/vector-icons";
+import GoalCard from "../../../components/goal-card";
 
 interface DashboardProps {
   onNavigateToSavingsGoals?: () => void;
@@ -51,16 +52,19 @@ export default function Dashboard({
             <Ionicons name="add-circle-outline" size={16} color={Colors.text} />
           </Pressable>
         </View>
-        <ProsperButton
-          text="Emergency Funds"
+        <GoalCard
+          label="Emergency Funds"
+          value={1000}
           onPress={() => onNavigateToSavingsGoals?.()}
         />
-        <ProsperButton
-          text="Vacation Funds"
+        <GoalCard
+          label="Vacation Funds"
+          value={500}
           onPress={() => onNavigateToSavingsGoals?.()}
         />
-        <ProsperButton
-          text="Concert Funds"
+        <GoalCard
+          label="Concert Funds"
+          value={50}
           onPress={() => onNavigateToSavingsGoals?.()}
         />
       </View>
