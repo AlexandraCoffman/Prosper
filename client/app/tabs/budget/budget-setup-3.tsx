@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
-
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import ProgressHeader from "../../../components/progress-header";
@@ -20,6 +19,43 @@ export default function Bills({
   progress = 60,
   onNavigateToIncomeSplit,
 }: BillsProps) {
+  const [selectedBills, setSelectedBills] = useState<number[]>([]);
+
+  const billData = [
+    {
+      title: "Rent",
+      desc: "October 30",
+      value: "-700.12",
+      iconName: "flash-outline" as const,
+    },
+    {
+      title: "Water",
+      desc: "October 30",
+      value: "-25.06",
+      iconName: "water-outline" as const,
+    },
+    {
+      title: "Netflix",
+      desc: "October 30",
+      value: "-14.99",
+      iconName: "videocam-outline" as const,
+    },
+    {
+      title: "Spotify",
+      desc: "October 30",
+      value: "-9.99",
+      iconName: "musical-notes-outline" as const,
+    },
+  ];
+
+  const handleToggleBill = (index: number) => {
+    setSelectedBills((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
+        : [...prev, index]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ProgressHeader onBack={onBack} onExit={onExit} progress={progress} />
@@ -33,38 +69,19 @@ export default function Bills({
           Here are the expenses that we found are predictable in cost and
           reoccurring. Select expenses that you pay for yourself
         </Text>
+
         <Card
           isAdd={true}
-          body={[
-            {
-              title: "Rent",
-              desc: "October 30",
-              value: "-700.12",
-              iconName: "flash-outline",
-            },
-            {
-              title: "Water",
-              desc: "October 30",
-              value: "-25.06",
-              iconName: "water-outline",
-            },
-            {
-              title: "Netflix",
-              desc: "October 30",
-              value: "-14.99",
-              iconName: "videocam-outline",
-            },
-            {
-              title: "Spotify",
-              desc: "October 30",
-              value: "-9.99",
-              iconName: "musical-notes-outline",
-            },
-          ]}
+          body={billData}
+          selectedIndexes={selectedBills}
+          onItemPress={handleToggleBill}
         />
 
         <ContinueButton onPress={onNavigateToIncomeSplit} />
-        <Text style={styles.addMissingBill}>Add Missing Bill</Text>
+        
+        <Pressable onPress={() => {}}>
+          <Text style={styles.addMissingBill}>Add Missing Bill</Text>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -99,6 +116,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     textAlign: "center",
     padding: 10,
-    flex: 1,
+    marginTop: 10,
   }
 });

@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
@@ -15,10 +16,18 @@ interface CardProps {
   body: CardBodyItem[];
   isNav?: boolean;
   isAdd?: boolean;
-  onPress?: () => void;
+  onItemPress?: (index: number) => void;
+  selectedIndexes?: number[];
 }
 
-const Card = ({ header, body, isNav, isAdd, onPress }: CardProps) => {
+const Card = ({ 
+  header, 
+  body, 
+  isNav, 
+  isAdd, 
+  onItemPress, 
+  selectedIndexes = [] 
+}: CardProps) => {
   return (
     <View style={styles.container}>
       {header && (
@@ -34,40 +43,43 @@ const Card = ({ header, body, isNav, isAdd, onPress }: CardProps) => {
       )}
 
       <View style={styles.bodyContainer}>
-        {body.map((item: CardBodyItem, index: number) => (
-          <View key={index}>
-            <View style={styles.itemContainer}>
-              <View style={styles.itemHeaderContainer}>
-                <View style={styles.iconContainer}>
-                  <Ionicons 
-                    name={item.iconName || "cash-outline"} 
-                    size={25} 
-                    color={Colors.text} 
-                  />
-                </View>
-                <View style={styles.itemContentContainer}>
-                  <Text style={styles.itemTitle} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.itemDesc}>{item.desc}</Text>
-                </View>
-              </View>
-              <View style={styles.itemValueContainer}>
-                <Text style={styles.itemValue}>{item.value}</Text>
-                {isAdd && (
-                  <Pressable onPress={onPress}>
-                    <Ionicons
-                      name="checkbox-outline"
-                      size={20}
-                      color={Colors.text}
+        {body.map((item: CardBodyItem, index: number) => {
+          const isChecked = selectedIndexes.includes(index);
+          return (
+            <View key={index}>
+              <View style={styles.itemContainer}>
+                <View style={styles.itemHeaderContainer}>
+                  <View style={styles.iconContainer}>
+                    <Ionicons 
+                      name={item.iconName || "cash-outline"} 
+                      size={25} 
+                      color={Colors.text} 
                     />
-                  </Pressable>
-                )}
+                  </View>
+                  <View style={styles.itemContentContainer}>
+                    <Text style={styles.itemTitle} numberOfLines={1}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.itemDesc}>{item.desc}</Text>
+                  </View>
+                </View>
+                <View style={styles.itemValueContainer}>
+                  <Text style={styles.itemValue}>{item.value}</Text>
+                  {isAdd && (
+                    <Pressable onPress={() => onItemPress?.(index)}>
+                      <Ionicons
+                        name={isChecked ? "checkbox" : "square-outline"}
+                        size={22}
+                        color={Colors.text}
+                      />
+                    </Pressable>
+                  )}
+                </View>
               </View>
+              {index < body.length - 1 && <View style={styles.separator} />}
             </View>
-            {index < body.length - 1 && <View style={styles.separator} />}
-          </View>
-        ))}
+          );
+        })}
       </View>
     </View>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
 import { Fonts } from "../../../styles/fonts";
 import { Colors } from "../../../styles/colors";
 import Card from "../../../components/card";
-import Button, { ContinueButton } from "../../../components/button";
+import { ContinueButton } from "../../../components/button";
 import ProgressHeader from "../../../components/progress-header";
 
 interface MonthlyEarningsProps {
@@ -24,6 +24,47 @@ export default function MonthlyEarnings({
   progress = 20, 
   onNavigateToPickMonthly 
 }: MonthlyEarningsProps) {
+  const [selectedOctober, setSelectedOctober] = useState<number[]>([]);
+  const [selectedSeptember, setSelectedSeptember] = useState<number[]>([]);
+
+  const octoberData = [
+    {
+      title: "University of Pittsburgh",
+      desc: "October 30",
+      value: "+$1500.81",
+    },
+    {
+      title: "University of Pittsburgh",
+      desc: "October 12",
+      value: "+$1500.81",
+    },
+  ];
+
+  const septemberData = [
+    {
+      title: "University of Pittsburgh",
+      desc: "September 30",
+      value: "+$1500.81",
+    },
+    {
+      title: "University of Pittsburgh",
+      desc: "September 12",
+      value: "+$1286.81",
+    },
+  ];
+
+  const toggleOctober = (index: number) => {
+    setSelectedOctober((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
+  const toggleSeptember = (index: number) => {
+    setSelectedSeptember((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ProgressHeader 
@@ -41,38 +82,23 @@ export default function MonthlyEarnings({
           If you’ve had an seasonal or irregular income, click the earnings from
           each month and we’ll handle the division
         </Text>
+        
         <Card
           header="October"
           isAdd={true}
-          body={[
-            {
-              title: "University of Pittsburgh",
-              desc: "October 30",
-              value: "+$1500.81",
-            },
-            {
-              title: "University of Pittsburgh",
-              desc: "October 12",
-              value: "+$1500.81",
-            },
-          ]}
+          body={octoberData}
+          selectedIndexes={selectedOctober}
+          onItemPress={toggleOctober}
         />
+
         <Card
           header="September"
           isAdd={true}
-          body={[
-            {
-              title: "University of Pittsburgh",
-              desc: "September 30",
-              value: "+$1500.81",
-            },
-            {
-              title: "University of Pittsburgh",
-              desc: "September 12",
-              value: "+$1286.81",
-            },
-          ]}
+          body={septemberData}
+          selectedIndexes={selectedSeptember}
+          onItemPress={toggleSeptember}
         />
+
         <ContinueButton onPress={onNavigateToPickMonthly} />
       </ScrollView>
     </View>
