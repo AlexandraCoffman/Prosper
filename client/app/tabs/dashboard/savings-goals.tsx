@@ -4,12 +4,16 @@ import MeterCard from "../../../components/meter-card";
 import LargePieChart from "../../../components/large-pie-chart";
 import { Fonts } from "../../../styles/fonts";
 import { Colors } from "../../../styles/colors";
+import { SavingsGoal } from "../../_layout";
 
 interface SavingsGoalsProps {
   onBack?: () => void;
+  savingsGoals?: SavingsGoal[];
+  onRenameGoal?: (oldTitle: string, newTitle: string) => void;
+  onDeleteGoal?: (title: string) => void;
 }
 
-const SavingsGoals = ({ onBack }: SavingsGoalsProps) => {
+const SavingsGoals = ({ onBack, savingsGoals = [], onRenameGoal, onDeleteGoal }: SavingsGoalsProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -37,35 +41,21 @@ const SavingsGoals = ({ onBack }: SavingsGoalsProps) => {
           showLegend={true}
           showCenterText={false}
           centerImage={require("../../../assets/plant-full.png")}
+          savingsGoals={savingsGoals}
         />
-        {/* 
-        This will eventually be an interable going over all the users' savings goals 
-        Props will be populated from db
-      */}
-        <MeterCard
-          title="Emergency Funds"
-          accountName="Morgan Stanley HYSA"
-          monthlyDeposit={50}
-          amountSaved={500}
-          amountRemaining={500}
-          projectedCompletionDate="04/09/2026"
-        />
-        <MeterCard
-          title="Vacation Funds"
-          accountName="BoFa Savings Personal"
-          monthlyDeposit={20}
-          amountSaved={20}
-          amountRemaining={500}
-          projectedCompletionDate="02/20/2026"
-        />
-        <MeterCard
-          title="Concert Funds"
-          accountName="BoFa Savings Personal"
-          monthlyDeposit={25}
-          amountSaved={50}
-          amountRemaining={100}
-          projectedCompletionDate="12/30/2025"
-        />
+        {savingsGoals.map((goal, index) => (
+          <MeterCard
+            key={index}
+            title={goal.title}
+            accountName={goal.accountName}
+            monthlyDeposit={goal.monthlyDeposit}
+            amountSaved={goal.amountSaved}
+            amountRemaining={goal.amountRemaining}
+            projectedCompletionDate={goal.projectedCompletionDate}
+            onRename={(newTitle) => onRenameGoal?.(goal.title, newTitle)}
+            onDelete={() => onDeleteGoal?.(goal.title)}
+          />
+        ))}
       </ScrollView>
     </View>
   );

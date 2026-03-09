@@ -113,7 +113,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     flexDirection: "column",
     justifyContent: "flex-start",
-    alignItems: "flex-start",
   },
   sectionTitle: {
     fontSize: 12,
