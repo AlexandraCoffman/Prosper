@@ -121,17 +121,30 @@ const MeterCard = ({
 
       <View style={styles.body}>
         <View style={styles.details}>
-          <Text style={styles.detailText}>{accountName}</Text>
-          <Text style={styles.detailText}>
-            Monthly Deposit: ${monthlyDeposit}
-          </Text>
-          <Text style={styles.detailText}>Amount Saved: ${amountSaved}</Text>
-          <Text style={styles.detailText}>
-            Amount Remaining: ${amountRemaining}
-          </Text>
-          <Text style={styles.detailText}>
-            Projected: {projectedCompletionDate}
-          </Text>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Account Name</Text>
+            <Text style={styles.detailText}>{accountName}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Monthly Deposit</Text>
+            <Text style={styles.detailText}>${monthlyDeposit}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Amount Saved</Text>
+            <Text style={styles.detailText}>${amountSaved}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Amount Remaining</Text>
+            <Text style={styles.detailText}>${amountRemaining}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Projected Completion Date</Text>
+            <Text style={styles.detailText}>{projectedCompletionDate}</Text>
+          </View>
         </View>
       </View>
 
@@ -228,6 +241,17 @@ const styles = StyleSheet.create({
   modalHeaderBold: {
     ...Fonts.bold,
     color: Colors.text,
+  },
+  divider: {
+    height: 2,
+    backgroundColor: Colors.primary,
+    marginVertical: 4,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 4,
   },
 });
 
