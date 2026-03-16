@@ -1,6 +1,16 @@
-import { View, Text, StyleSheet } from "react-native";
+import { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
+import SmallPieChart from "./small-pie-chart";
+import AppModal from "./modal";
 
 interface MeterCardProps {
   title: string;
@@ -9,6 +19,8 @@ interface MeterCardProps {
   amountSaved: number;
   amountRemaining: number;
   projectedCompletionDate: string;
+  onRename?: (newTitle: string) => void;
+  onDelete?: () => void;
 }
 
 const MeterCard = ({
@@ -18,17 +30,150 @@ const MeterCard = ({
   amountSaved,
   amountRemaining,
   projectedCompletionDate,
+  onRename,
+  onDelete,
 }: MeterCardProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(title);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleConfirmRename = () => {
+    const trimmed = editText.trim();
+    if (trimmed && trimmed !== title) {
+      onRename?.(trimmed);
+    } else {
+      setEditText(title);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditText(title);
+    setIsEditing(false);
+  };
+
   return (
     <View style={styles.container}>
-      <View>
-        <Text style={styles.title}>{title}</Text>
-        <Text>{accountName}</Text>
-        <Text>Monthly Deposit: {monthlyDeposit}</Text>
-        <Text>Amount Saved: {amountSaved}</Text>
-        <Text>Amount Remaining: {amountRemaining}</Text>
-        <Text>Projected Completion Date: {projectedCompletionDate}</Text>
+      <View style={styles.header}>
+        <SmallPieChart
+          amountSaved={amountSaved}
+          amountRemaining={amountRemaining}
+        />
+        <View style={styles.titleRow}>
+          {isEditing ? (
+            <TextInput
+              style={styles.titleInput}
+              value={editText}
+              onChangeText={setEditText}
+              autoFocus
+              onSubmitEditing={handleConfirmRename}
+              returnKeyType="done"
+            />
+          ) : (
+            <Text style={styles.title}>{title}</Text>
+          )}
+        </View>
+        <View style={styles.actions}>
+          {isEditing ? (
+            <>
+              <TouchableOpacity
+                onPress={handleConfirmRename}
+                style={styles.actionButton}
+              >
+                <Ionicons name="checkmark" size={20} color={Colors.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleCancelEdit}
+                style={styles.actionButton}
+              >
+                <Ionicons name="close" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                onPress={() => {
+                  setEditText(title);
+                  setIsEditing(true);
+                }}
+                style={styles.actionButton}
+              >
+                <Ionicons
+                  name="pencil-outline"
+                  size={17}
+                  color={Colors.textSecondary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowDeleteModal(true)}
+                style={styles.actionButton}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={17}
+                  color={Colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
+
+      <View style={styles.body}>
+        <View style={styles.details}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Account Name</Text>
+            <Text style={styles.detailText}>{accountName}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Monthly Deposit</Text>
+            <Text style={styles.detailText}>${monthlyDeposit}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Amount Saved</Text>
+            <Text style={styles.detailText}>${amountSaved}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Amount Remaining</Text>
+            <Text style={styles.detailText}>${amountRemaining}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailText}>Projected Completion Date</Text>
+            <Text style={styles.detailText}>{projectedCompletionDate}</Text>
+          </View>
+        </View>
+      </View>
+
+      <AppModal
+        visible={showDeleteModal}
+        onDismiss={() => setShowDeleteModal(false)}
+        header={
+          <Text style={styles.modalHeader}>
+            Are you sure you want to{" "}
+            <Text style={styles.modalHeaderBold}>delete</Text> your savings
+            goal?
+          </Text>
+        }
+        subheader="This action cannot be undone"
+        buttons={[
+          {
+            label: "Cancel",
+            ghost: true,
+            onPress: () => setShowDeleteModal(false),
+          },
+          {
+            label: "Delete",
+            onPress: () => {
+              setShowDeleteModal(false);
+              onDelete?.();
+            },
+          },
+        ]}
+      />
     </View>
   );
 };
@@ -40,16 +185,73 @@ const styles = StyleSheet.create({
     margin: 8,
     borderRadius: 10,
   },
-  content: {
-    flexDirection: "column",
-    justifyContent: "flex-start",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    ...Fonts.regular,
+    marginBottom: 12,
+    gap: 12,
+  },
+  titleRow: {
+    flex: 1,
+    marginRight: 8,
   },
   title: {
-    fontSize: 20,
-    marginBottom: 8,
+    fontSize: 18,
     ...Fonts.bold,
+  },
+  titleInput: {
+    fontSize: 18,
+    ...Fonts.bold,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primary,
+    paddingVertical: 2,
+    color: Colors.text,
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  actionButton: {
+    padding: 4,
+  },
+  body: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  details: {
+    flex: 1,
+    gap: 4,
+    marginRight: 12,
+  },
+  detailText: {
+    fontSize: 13,
+    color: Colors.text,
+    ...Fonts.regular,
+  },
+  modalHeader: {
+    fontSize: 17,
+    ...Fonts.regular,
+    color: Colors.text,
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  modalHeaderBold: {
+    ...Fonts.bold,
+    color: Colors.text,
+  },
+  divider: {
+    height: 2,
+    backgroundColor: Colors.primary,
+    marginVertical: 4,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 4,
   },
 });
 

@@ -34,6 +34,42 @@ import BudgetPlan from "./tabs/budget/budget-setup-5";
 import BudgetCreated from "./tabs/budget/budget-created";
 import { Ionicons } from "@expo/vector-icons";
 
+export interface SavingsGoal {
+  title: string;
+  accountName: string;
+  monthlyDeposit: number;
+  amountSaved: number;
+  amountRemaining: number;
+  projectedCompletionDate: string;
+}
+
+const INITIAL_SAVINGS_GOALS: SavingsGoal[] = [
+  {
+    title: "Emergency Funds",
+    accountName: "Morgan Stanley HYSA",
+    monthlyDeposit: 50,
+    amountSaved: 500,
+    amountRemaining: 500,
+    projectedCompletionDate: "04/09/2026",
+  },
+  {
+    title: "Vacation Funds",
+    accountName: "BoFa Savings Personal",
+    monthlyDeposit: 20,
+    amountSaved: 20,
+    amountRemaining: 500,
+    projectedCompletionDate: "02/20/2026",
+  },
+  {
+    title: "Concert Funds",
+    accountName: "BoFa Savings Personal",
+    monthlyDeposit: 25,
+    amountSaved: 50,
+    amountRemaining: 100,
+    projectedCompletionDate: "12/30/2025",
+  },
+];
+
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 if (!publishableKey) {
@@ -47,6 +83,17 @@ function AppContent() {
   const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in">(
     "home",
   );
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(INITIAL_SAVINGS_GOALS);
+
+  const handleRenameGoal = (oldTitle: string, newTitle: string) => {
+    setSavingsGoals((prev) =>
+      prev.map((g) => (g.title === oldTitle ? { ...g, title: newTitle } : g))
+    );
+  };
+
+  const handleDeleteGoal = (title: string) => {
+    setSavingsGoals((prev) => prev.filter((g) => g.title !== title));
+  };
 
   const [isBudgetCreated, setIsBudgetCreated] = useState(false);
 
@@ -181,7 +228,12 @@ function AppContent() {
           <Text style={styles.signInText}>Sign In</Text>
         </TouchableOpacity>
         <View style={styles.screenContent}>
-          <SavingsGoals onBack={() => setScreen("home")} />
+          <SavingsGoals
+            onBack={() => setScreen("home")}
+            savingsGoals={savingsGoals}
+            onRenameGoal={handleRenameGoal}
+            onDeleteGoal={handleDeleteGoal}
+          />
         </View>
         <StatusBar style="auto" />
       </View>
