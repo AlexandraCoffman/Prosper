@@ -30,6 +30,8 @@ import MonthlyEarnings from "./tabs/budget/budget-setup-1";
 import PickMonthly from "./tabs/budget/budget-setup-2";
 import Bills from "./tabs/budget/budget-setup-3";
 import IncomeSplit from "./tabs/budget/budget-setup-4";
+import BudgetPlan from "./tabs/budget/budget-setup-5";
+import BudgetCreated from "./tabs/budget/budget-created";
 import { Ionicons } from "@expo/vector-icons";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -46,6 +48,8 @@ function AppContent() {
     "home",
   );
 
+  const [isBudgetCreated, setIsBudgetCreated] = useState(false);
+
   useEffect(() => {
     const fetchMessage = async () => {
       try {
@@ -56,7 +60,13 @@ function AppContent() {
     };
     fetchMessage();
   }, []);
-
+  const handleNavChange = (newScreen : string) => {
+      if(newScreen === "Budget" && isBudgetCreated) {
+        setCurrentScreen("BudgetCreated");
+      } else {
+        setCurrentScreen(newScreen);
+      }
+    };
   const renderScreen = () => {
     switch (currentScreen) {
       case "Dashboard":
@@ -113,6 +123,26 @@ function AppContent() {
             onNavigateToBudgetPlan={() => setCurrentScreen("BudgetPlan")}
           />
         );
+      case "BudgetPlan":
+        return (
+          <BudgetPlan
+            progress={90}
+            onBack={() => setCurrentScreen("IncomeSplit")}
+            onExit={() => setCurrentScreen("Budget")}
+            onNavigateToBudgetCreated={() => {
+              setIsBudgetCreated(true);
+              setCurrentScreen("BudgetCreated");
+            }}
+          />
+        );
+      case "BudgetCreated":
+        return (
+          <BudgetCreated
+            progress={100}
+            onBack={() => setCurrentScreen("BudgetPlan")}
+            onExit={() => setCurrentScreen("BudgetCreated")}
+          />
+        )
       case "Learn":
         return <Learn />;
       default:
@@ -167,7 +197,7 @@ function AppContent() {
         <Text style={styles.signInText}>Sign In</Text>
       </TouchableOpacity>
       <View style={styles.content}>{renderScreen()}</View>
-      <BottomNav currentScreen={currentScreen} setScreen={setCurrentScreen} />
+      <BottomNav currentScreen={currentScreen} setScreen={handleNavChange} />
       <StatusBar style="auto" />
     </View>
   );

@@ -1,14 +1,33 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../styles/colors';
 import { Fonts } from '../styles/fonts';
 
-// Needs Card
-const NeedsItem = ({ title, subtitle, amount }: { title: string; subtitle: string; amount: string }) => (
+export type NeedsListItem = {
+  title: string;
+  subtitle: string;
+  amount: string;
+  iconName?: any;
+  iconType?: 'Ionicons' | 'Octicons' | 'MaterialCommunityIcons';
+};
+
+const NeedsItem = ({ 
+  title, 
+  subtitle, 
+  amount, 
+  iconName, 
+  iconType = 'Ionicons' 
+}: NeedsListItem) => (
   <View style={styles.needsItem}>
-    <View style={styles.needsHelpIcons}>
-      <Ionicons name="help" size={16} color={Colors.text} />
+    <View style={styles.iconCircle}>
+      {iconType === 'Octicons' ? (
+        <Octicons name={iconName} size={18} color={Colors.text} />
+      ) : iconType === 'MaterialCommunityIcons' ? (
+        <MaterialCommunityIcons name={iconName} size={20} color={Colors.text} />
+      ) : (
+        <Ionicons name={iconName || "help"} size={20} color={Colors.text} />
+      )}
     </View>
     <View style={styles.amountNeedsText}>
       <Text style={styles.classificationTitleNeeds}>{title}</Text>
@@ -17,12 +36,6 @@ const NeedsItem = ({ title, subtitle, amount }: { title: string; subtitle: strin
     <Text style={styles.needsItemAmount}>{amount}</Text>
   </View>
 );
-
-export type NeedsListItem = {
-  title: string;
-  subtitle: string;
-  amount: string;
-};
 
 type ListProps = {
   title?: string;
@@ -37,12 +50,17 @@ export default function List({ title = 'Needs', items }: ListProps) {
         <Ionicons name="chevron-forward" size={18} color={Colors.text} />
       </TouchableOpacity>
 
-      {/* Needs Breakdown */}
       <View style={styles.needsCardBody}>
         {items.map((item, index) => (
           <React.Fragment key={index}>
             {index > 0 && <View style={styles.separator} />}
-            <NeedsItem title={item.title} subtitle={item.subtitle} amount={item.amount} />
+            <NeedsItem 
+              title={item.title} 
+              subtitle={item.subtitle} 
+              amount={item.amount} 
+              iconName={item.iconName}
+              iconType={item.iconType}
+            />
           </React.Fragment>
         ))}
       </View>
@@ -54,8 +72,8 @@ const styles = StyleSheet.create({
   needsCardExpand: {
     backgroundColor: Colors.accent,
     borderRadius: 16,
-    width: '90%',
-    marginBottom: 10,
+    width: '100%',
+    marginBottom: 25,
     overflow: 'hidden',
   },
   needsCardHeader: {
@@ -81,10 +99,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
   },
-  needsHelpIcons: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
@@ -94,24 +112,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   classificationTitleNeeds: {
-    fontSize: 14,
+    fontSize: 15,
     ...Fonts.regular,
     color: Colors.text,
   },
   percentPaycheckNeeds: {
-    fontSize: 12,
+    fontSize: 13,
     ...Fonts.regular,
     color: Colors.text,
+    opacity: 0.7,
     marginTop: 2,
   },
   needsItemAmount: {
-    fontSize: 14,
+    fontSize: 15,
     ...Fonts.regular,
     color: Colors.text,
   },
   separator: {
-    height: 3,
-    backgroundColor: '#FFFF',
-    borderRadius: 100,
+    height: 2,
+    backgroundColor: Colors.background,
+    marginVertical: 4,
   },
 });
