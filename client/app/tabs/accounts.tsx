@@ -13,19 +13,48 @@ const Accounts = () => {
       <View style={styles.content}>
         <View style={styles.accountContainer}>
           <Text>CASH</Text>
-          <CollapsibleMenu />
-          <CollapsibleMenu />
+          <CollapsibleMenu
+            label="Jane's Checking"
+            icon="business-outline"
+            acctType="Checking"
+            value="600"
+          />
+          <CollapsibleMenu
+            label="Jane's Savings"
+            icon="cash-outline"
+            acctType="Savings"
+            value="1000"
+          />
         </View>
         <View style={styles.accountContainer}>
           <Text>CREDIT CARD</Text>
-          <CollapsibleMenu />
-          <CollapsibleMenu />
-          <CollapsibleMenu />
+          <CollapsibleMenu
+            label="Quicksilver"
+            icon="card-outline"
+            acctType="Credit"
+            value="500"
+          />
+          <CollapsibleMenu
+            label="Travel Rewards"
+            icon="card-outline"
+            acctType="Credit"
+            value="0"
+          />
+          <CollapsibleMenu
+            label="PNC"
+            icon="card-outline"
+            acctType="Credit"
+            value="100"
+          />
         </View>
         <View style={styles.accountContainer}>
           <Text>INVESTMENTS</Text>
-          <CollapsibleMenu />
-          <CollapsibleMenu />
+          <CollapsibleMenu
+            label="Roth IRA"
+            icon="trending-up-outline"
+            acctType="Robinhood"
+            value="15000"
+          />
         </View>
       </View>
     </ScrollView>
