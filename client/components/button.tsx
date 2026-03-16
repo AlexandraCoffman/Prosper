@@ -12,6 +12,9 @@ interface CreateBudgetButtonProps {
 interface ContinueButtonProps {
   onPress?: () => void;
 }
+interface CreateTransactionButtonProps {
+  onPress?: () => void;
+}
 
 const ProsperButton = ({ onPress, text }: ProsperButtonProps) => {
   return (
@@ -39,6 +42,17 @@ export const ContinueButton = ({ onPress }: ContinueButtonProps) => {
     </TouchableOpacity>
   );
 }
+
+// Create Transaction Button
+export const CreateTransactionButton = ({ onPress }: CreateTransactionButtonProps) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={[styles.createButton, {padding: 20 }]}>
+      <Text style={styles.createButtonText}>Add Transaction</Text>
+    </TouchableOpacity>
+  );
+}
+
+
 
 const styles = StyleSheet.create({
   button: {
