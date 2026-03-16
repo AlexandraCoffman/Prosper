@@ -8,7 +8,7 @@ import { MultiSelectButtons } from "../../components/multi-select-buttons";
 import React, {useState} from 'react';
 
 const Transactions = () => {
-  const [modalVisible, setModalVisible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
   const [nameText, onChangeNameText] = React.useState('Name*');
   const [amount, onChangeAmount] = React.useState('');
   const [date, onChangeDate] = React.useState('');
