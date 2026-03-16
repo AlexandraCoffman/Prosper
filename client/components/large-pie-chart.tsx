@@ -38,7 +38,7 @@ export default function DonutChart({
   centerImage,
   savingsGoals,
 }: DonutChartProps) {
-  const size = 220;
+  const size = 270;
   const width = 30;
   const radius = (size - width) / 2;
   const circumference = radius * 2 * Math.PI;

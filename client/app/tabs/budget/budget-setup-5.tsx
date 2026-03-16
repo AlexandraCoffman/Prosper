@@ -69,16 +69,6 @@ export default function BudgetPlan({
             showLegend={true}
           />
           
-          <View style={[styles.iconBadge, { top: '2%', right: '56%' }]}>
-            <MaterialCommunityIcons name="piggy-bank-outline" size={20} color={Colors.text} />
-          </View>
-          <View style={[styles.iconBadge, { top: '70%', left: '67.5%' }]}>
-            <Octicons name="checklist" size={20} color={Colors.text} />
-          </View>
-          <View style={[styles.iconBadge, { bottom: '70%', left: '16%' }]}>
-            <Ionicons name="bag-outline" size={20} color={Colors.text} />
-          </View>
-          
           <TouchableOpacity style={styles.editButton}>
             <Ionicons name="create-outline" size={20} color={Colors.text} />
           </TouchableOpacity>
@@ -140,7 +130,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     position: 'absolute', 
-    bottom: 40, 
+    bottom: 50, 
     right: 45, 
     backgroundColor: Colors.background,
     width: 35, 
