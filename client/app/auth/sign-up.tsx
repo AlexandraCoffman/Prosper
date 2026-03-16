@@ -5,24 +5,18 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
 import { Colors } from "../../styles/colors";
 import ProsperButton from "../../components/button";
+import { ProsperPicker } from "../../components/picker";
+import ProgressHeader from "../../components/progress-header";
 
 type SignUpScreenProps = {
   onSwitchToSignIn: () => void;
 };
 
-type SignUpStep =
-  | "welcome"
-  | "name"
-  | "email"
-  | "password"
-  | "info"
-  | "support"
-  | "goals";
+type SignUpStep = "name" | "email" | "password" | "info" | "support" | "goals";
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const { signUp, setActive, isLoaded } = useSignUp();
@@ -34,9 +28,32 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [supportNeed, setSupportNeed] = useState<string | null>(null);
   const [primaryGoal, setPrimaryGoal] = useState<string | null>(null);
-  const [step, setStep] = useState<SignUpStep>("welcome");
+  const [step, setStep] = useState<SignUpStep>("name");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const STEP_ORDER: SignUpStep[] = [
+    "name",
+    "email",
+    "password",
+    "info",
+    "support",
+    "goals",
+  ];
+
+  const stepProgress = () => {
+    const idx = STEP_ORDER.indexOf(step);
+    return Math.round(((idx + 1) / STEP_ORDER.length) * 100);
+  };
+
+  const handleBack = () => {
+    const idx = STEP_ORDER.indexOf(step);
+    if (idx <= 0) {
+      onSwitchToSignIn();
+    } else {
+      goToNext(STEP_ORDER[idx - 1]);
+    }
+  };
 
   const goToNext = (next: SignUpStep) => {
     setError(null);
@@ -96,20 +113,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
 
   const renderContent = () => {
     switch (step) {
-      case "welcome":
-        return (
-          <>
-            <Text style={styles.title}>Create your account</Text>
-            <Text style={styles.subtitle}>
-              Let&apos;s set up your Prosper account in a few quick steps.
-            </Text>
-            <ProsperButton
-              onPress={() => {
-                setStep("name");
-              }}
-            />
-          </>
-        );
       case "name":
         return (
           <>
@@ -132,6 +135,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               onChangeText={setLastName}
             />
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 setStep("email");
               }}
@@ -163,16 +167,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 setStep("password");
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("welcome")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
           </>
         );
       case "password":
@@ -198,16 +197,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 handleCollectPassword();
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("email")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
           </>
         );
       case "info":
@@ -217,46 +211,41 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <Text style={styles.subtitle}>
               Select all of the options below that apply to you
             </Text>
-            <View style={styles.chipRow}>
-              {[
-                "I currently rent",
-                "I am married",
-                "I have kids",
-                "I have a car",
-                "I pay student loans",
-                "I am a dependent",
-              ].map((label) => (
-                <TouchableOpacity
-                  key={label}
-                  style={[
-                    styles.chip,
-                    primaryGoal === label && styles.chipSelected,
-                  ]}
-                  onPress={() => setPrimaryGoal(label)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      primaryGoal === label && styles.chipTextSelected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ProsperPicker
+              items={[
+                {
+                  label: "I currently rent",
+                  onPress: () => setPrimaryGoal("I currently rent"),
+                },
+                {
+                  label: "I am married",
+                  onPress: () => setPrimaryGoal("I am married"),
+                },
+                {
+                  label: "I have kids",
+                  onPress: () => setPrimaryGoal("I have kids"),
+                },
+                {
+                  label: "I have a car",
+                  onPress: () => setPrimaryGoal("I have a car"),
+                },
+                {
+                  label: "I pay student loans",
+                  onPress: () => setPrimaryGoal("I pay student loans"),
+                },
+                {
+                  label: "I am a dependent",
+                  onPress: () => setPrimaryGoal("I am a dependent"),
+                },
+              ]}
+            />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 goToNext("support");
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("password")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
           </>
         );
       case "support":
@@ -266,47 +255,42 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <Text style={styles.subtitle}>
               Select all of the options below that apply to you
             </Text>
-            <View style={styles.chipRow}>
-              {[
-                "Full-time job",
-                "Part-time job",
-                "Paid internship",
-                "Scholarships/Grants",
-                "Loans",
-                "Parent/Guardian assistance",
-                "Government assistance",
-              ].map((label) => (
-                <TouchableOpacity
-                  key={label}
-                  style={[
-                    styles.chip,
-                    supportNeed === label && styles.chipSelected,
-                  ]}
-                  onPress={() => setSupportNeed(label)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      supportNeed === label && styles.chipTextSelected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ProsperPicker
+              items={[
+                {
+                  label: "Full-time job",
+                  onPress: () => setSupportNeed("Full-time job"),
+                },
+                {
+                  label: "Part-time job",
+                  onPress: () => setSupportNeed("Part-time job"),
+                },
+                {
+                  label: "Paid internship",
+                  onPress: () => setSupportNeed("Paid internship"),
+                },
+                {
+                  label: "Scholarships/Grants",
+                  onPress: () => setSupportNeed("Scholarships/Grants"),
+                },
+                { label: "Loans", onPress: () => setSupportNeed("Loans") },
+                {
+                  label: "Parent/Guardian assistance",
+                  onPress: () => setSupportNeed("Parent/Guardian assistance"),
+                },
+                {
+                  label: "Government assistance",
+                  onPress: () => setSupportNeed("Government assistance"),
+                },
+              ]}
+            />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
+              text="Continue"
               onPress={() => {
                 goToNext("goals");
               }}
             />
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("info")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
           </>
         );
       case "goals":
@@ -316,42 +300,39 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <Text style={styles.subtitle}>
               Select the financial goals you would like to achieve
             </Text>
-            <View style={styles.chipRow}>
-              {[
-                "Build an emergency fund",
-                "Pay off debt",
-                "Save for a large purchase",
-                "Save for a small purchase",
-                "Plan a trip",
-                "Manage my finances",
-                "Something else"
-              ].map((label) => (
-                <TouchableOpacity
-                  key={label}
-                  style={[
-                    styles.chip,
-                    primaryGoal === label && styles.chipSelected,
-                  ]}
-                  onPress={() => setPrimaryGoal(label)}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      primaryGoal === label && styles.chipTextSelected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ProsperPicker
+              items={[
+                {
+                  label: "Build an emergency fund",
+                  onPress: () => setPrimaryGoal("Build an emergency fund"),
+                },
+                {
+                  label: "Pay off debt",
+                  onPress: () => setPrimaryGoal("Pay off debt"),
+                },
+                {
+                  label: "Save for a large purchase",
+                  onPress: () => setPrimaryGoal("Save for a large purchase"),
+                },
+                {
+                  label: "Save for a small purchase",
+                  onPress: () => setPrimaryGoal("Save for a small purchase"),
+                },
+                {
+                  label: "Plan a trip",
+                  onPress: () => setPrimaryGoal("Plan a trip"),
+                },
+                {
+                  label: "Manage my finances",
+                  onPress: () => setPrimaryGoal("Manage my finances"),
+                },
+                {
+                  label: "Something else",
+                  onPress: () => setPrimaryGoal("Something else"),
+                },
+              ]}
+            />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => goToNext("support")}
-            >
-              <Text style={styles.secondaryButtonText}>Back</Text>
-            </TouchableOpacity>
           </>
         );
       default:
@@ -361,6 +342,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
 
   return (
     <View style={styles.container}>
+      <ProgressHeader
+        progress={stepProgress()}
+        onBack={handleBack}
+        onExit={onSwitchToSignIn}
+      />
       {renderContent()}
       <TouchableOpacity onPress={onSwitchToSignIn}>
         <Text style={styles.link}>
@@ -377,7 +363,7 @@ export default SignUpScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 24,
     backgroundColor: Colors.background,
   },

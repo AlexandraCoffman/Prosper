@@ -42,7 +42,9 @@ export default function Budget({ onNavigateToEstimateMonthlyEarnings }: MonthlyE
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        <LargePieChart showLegend={true} />
+        <View style={styles.chartContainer}>
+          <LargePieChart showLegend={true} />
+        </View>
 
         {/* Needs */}
         <List
@@ -96,6 +98,10 @@ const styles = StyleSheet.create({
     ...Fonts.regular,
     color: Colors.text,
     marginRight: 4,
+  },
+  chartContainer: {
+    marginBottom: 20,
+    marginVertical: 15,
   },
   scrollViewContent: {
     alignItems: "center",

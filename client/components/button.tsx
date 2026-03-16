@@ -5,6 +5,8 @@ import { Fonts } from "../styles/fonts";
 interface ProsperButtonProps {
   onPress: () => void;
   text?: string;
+  borderRadius?: number;
+  ghost?: boolean;
 }
 interface CreateBudgetButtonProps {
   onPress?: () => void;
@@ -16,10 +18,28 @@ interface CreateTransactionButtonProps {
   onPress?: () => void;
 }
 
-const ProsperButton = ({ onPress, text }: ProsperButtonProps) => {
+const ProsperButton = ({
+  onPress,
+  text,
+  borderRadius,
+  ghost,
+}: ProsperButtonProps) => {
   return (
-    <Pressable onPress={onPress} style={styles.button}>
-      <Text style={styles.text}>{text || "Click me"}</Text>
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.button,
+        { borderRadius: borderRadius ?? 999 },
+        ghost && {
+          backgroundColor: "transparent",
+          borderWidth: 1,
+          borderColor: Colors.textSecondary,
+        },
+      ]}
+    >
+      <Text style={[styles.text, ghost && { color: Colors.text }]}>
+        {text || "Click me"}
+      </Text>
     </Pressable>
   );
 };
@@ -33,7 +53,7 @@ export const CreateBudgetButton = ({ onPress }: CreateBudgetButtonProps) => {
       <Text style={styles.createButtonText}>Create Budget</Text>
     </TouchableOpacity>
   );
-}
+};
 
 export const ContinueButton = ({ onPress }: ContinueButtonProps) => {
   return (
@@ -41,7 +61,7 @@ export const ContinueButton = ({ onPress }: ContinueButtonProps) => {
       <Text style={styles.createButtonText}>Continue</Text>
     </TouchableOpacity>
   );
-}
+};
 
 // Create Transaction Button
 export const CreateTransactionButton = ({ onPress }: CreateTransactionButtonProps) => {
@@ -58,7 +78,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.accent,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 999,
     alignItems: "center",
     margin: 8,
   },

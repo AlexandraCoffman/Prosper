@@ -78,12 +78,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     ...Fonts.regular,
     color: Colors.text,
   },
   cardAmount: {
-    fontSize: 16,
+    fontSize: 18,
     ...Fonts.bold,
     color: Colors.text,
     marginBottom: 10,

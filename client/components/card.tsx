@@ -1,13 +1,15 @@
+import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Octicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface CardBodyItem {
   title: string;
   desc: string;
   value: string;
-  iconName?: React.ComponentProps<typeof Ionicons>['name'];
+  iconName?: any; 
+  iconType?: 'Ionicons' | 'Octicons' | 'MaterialCommunityIcons';
 }
 
 interface CardProps {
@@ -15,59 +17,78 @@ interface CardProps {
   body: CardBodyItem[];
   isNav?: boolean;
   isAdd?: boolean;
-  onPress?: () => void;
+  onItemPress?: (index: number) => void;
+  selectedIndexes?: number[];
+  isCentered?: boolean;
 }
 
-const Card = ({ header, body, isNav, isAdd, onPress }: CardProps) => {
+const Card = ({ 
+  header, 
+  body, 
+  isNav, 
+  isAdd, 
+  onItemPress, 
+  selectedIndexes = [],
+  isCentered = false 
+}: CardProps) => {
   return (
     <View style={styles.container}>
       {header && (
         <View style={styles.headerContainer}>
           <Text style={styles.header}>{header}</Text>
-          {isNav && (
-            <Ionicons name="chevron-forward" size={18} color={Colors.text} />
-          )}
-          {isAdd && (
-            <Ionicons name="add-circle-outline" size={25} color={Colors.text} />
-          )}
+          {isNav && <Ionicons name="chevron-forward" size={18} color={Colors.text} />}
+          {isAdd && <Ionicons name="add-circle-outline" size={25} color={Colors.text} />}
         </View>
       )}
 
       <View style={styles.bodyContainer}>
-        {body.map((item: CardBodyItem, index: number) => (
-          <View key={index}>
-            <View style={styles.itemContainer}>
-              <View style={styles.itemHeaderContainer}>
-                <View style={styles.iconContainer}>
-                  <Ionicons 
-                    name={item.iconName || "cash-outline"} 
-                    size={25} 
-                    color={Colors.text} 
-                  />
+        {body.map((item: CardBodyItem, index: number) => {
+          const isChecked = selectedIndexes.includes(index);
+          
+          return (
+            <View key={index}>
+              <View style={styles.itemContainer}>
+                <View style={styles.itemHeaderContainer}>
+                  <View style={styles.iconContainer}>
+                    {item.iconType === 'Octicons' ? (
+                      <Octicons name={item.iconName} size={22} color={Colors.text} />
+                    ) : item.iconType === 'MaterialCommunityIcons' ? (
+                      <MaterialCommunityIcons name={item.iconName} size={25} color={Colors.text} />
+                    ) : (
+                      <Ionicons name={item.iconName || "cash-outline"} size={25} color={Colors.text} />
+                    )}
+                  </View>
+                  
+                  <View style={[
+                    styles.itemContentContainer, 
+                    isCentered && { justifyContent: 'center' }
+                  ]}>
+                    <Text style={styles.itemTitle} numberOfLines={1}>
+                      {item.title}
+                    </Text>
+                    {!isCentered && item.desc ? (
+                      <Text style={styles.itemDesc}>{item.desc}</Text>
+                    ) : null}
+                  </View>
                 </View>
-                <View style={styles.itemContentContainer}>
-                  <Text style={styles.itemTitle} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.itemDesc}>{item.desc}</Text>
+
+                <View style={styles.itemValueContainer}>
+                  <Text style={styles.itemValue}>{item.value}</Text>
+                  {isAdd && (
+                    <Pressable onPress={() => onItemPress?.(index)}>
+                      <Ionicons
+                        name={isChecked ? "checkbox" : "square-outline"}
+                        size={22}
+                        color={Colors.text}
+                      />
+                    </Pressable>
+                  )}
                 </View>
               </View>
-              <View style={styles.itemValueContainer}>
-                <Text style={styles.itemValue}>{item.value}</Text>
-                {isAdd && (
-                  <Pressable onPress={onPress}>
-                    <Ionicons
-                      name="checkbox-outline"
-                      size={20}
-                      color={Colors.text}
-                    />
-                  </Pressable>
-                )}
-              </View>
+              {index < body.length - 1 && <View style={styles.separator} />}
             </View>
-            {index < body.length - 1 && <View style={styles.separator} />}
-          </View>
-        ))}
+          );
+        })}
       </View>
     </View>
   );
@@ -92,6 +113,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
+    backgroundColor: Colors.background,
   },
   headerContainer: {
     flexDirection: "row",
@@ -114,6 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
+    minHeight: 45,
   },
   itemHeaderContainer: {
     flexDirection: "row",
@@ -123,18 +146,16 @@ const styles = StyleSheet.create({
   },
   itemContentContainer: {
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "flex-start",
     flex: 1,
+    height: '100%',
   },
   itemTitle: {
     fontSize: 15,
     ...Fonts.regular,
     color: Colors.text,
-    marginBottom: 2,
   },
   itemDesc: {
-    fontSize: 13,
+    fontSize: 12,
     ...Fonts.regular,
     color: Colors.text,
     opacity: 0.8,
@@ -152,8 +173,8 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 2,
-    backgroundColor: "#FFFFFF",
-    marginVertical: 16,
+    backgroundColor: Colors.background,
+    marginVertical: 12,
   },
 });
 

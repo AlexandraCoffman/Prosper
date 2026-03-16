@@ -2,6 +2,7 @@ import React from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
+import ProgressBar from "./progress-bar";
 
 interface ProgressHeaderProps {
   onBack?: () => void;
@@ -22,8 +23,8 @@ export default function ProgressHeader({
         </Pressable>
       </View>
 
-      <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+      <View style={styles.progressBarWrapper}>
+        <ProgressBar progress={progress} />
       </View>
 
       <View style={styles.headerRight}>
@@ -57,15 +58,7 @@ const styles = StyleSheet.create({
   exitButton: {
     padding: 4,
   },
-  progressBarContainer: {
+  progressBarWrapper: {
     flex: 4,
-    height: 6,
-    backgroundColor: Colors.accent,
-    overflow: "hidden",
-    borderRadius: 12,
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: Colors.primary,
   },
 });

@@ -1,11 +1,19 @@
 import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
-import ProsperButton from "../../../components/button";
-import Slider from "../../../components/slider";
-import CalendarPicker from "../../../components/calendar-picker";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
-import SpendGraph from "../../../components/spend-graph";
+import SpendGraph, { SpendingDataPoint } from "../../../components/spend-graph";
 import { Ionicons } from "@expo/vector-icons";
+import GoalCard from "../../../components/goal-card";
+
+// Mock spending data for spend graph
+// TODO: Reformat to follow DB schema
+const MOCK_SPENDING: SpendingDataPoint[] = [
+  { day: 1, amount: 85 },
+  { day: 8, amount: 210 },
+  { day: 15, amount: 145 },
+  { day: 22, amount: 310 },
+  { day: 29, amount: 275 },
+];
 
 interface DashboardProps {
   onNavigateToSavingsGoals?: () => void;
@@ -29,18 +37,36 @@ export default function Dashboard({
       </View>
       <View style={styles.hero}>
         <Text style={styles.sectionTitle}>INSIGHTS & TRANSACTIONS</Text>
-        <SpendGraph />
+        <SpendGraph totalSpending={789} data={MOCK_SPENDING} />
       </View>
       <View style={styles.hero}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Text style={styles.sectionTitle}>SAVING GOALS</Text>
           <Pressable style={{ marginLeft: 8 }}>
             <Ionicons name="add-circle-outline" size={16} color={Colors.text} />
           </Pressable>
         </View>
-        <ProsperButton onPress={() => onNavigateToSavingsGoals?.()} />
-        <ProsperButton onPress={() => onNavigateToSavingsGoals?.()} />
-        <ProsperButton onPress={() => onNavigateToSavingsGoals?.()} />
+        <GoalCard
+          label="Emergency Funds"
+          value={1000}
+          onPress={() => onNavigateToSavingsGoals?.()}
+        />
+        <GoalCard
+          label="Vacation Funds"
+          value={500}
+          onPress={() => onNavigateToSavingsGoals?.()}
+        />
+        <GoalCard
+          label="Concert Funds"
+          value={50}
+          onPress={() => onNavigateToSavingsGoals?.()}
+        />
       </View>
     </ScrollView>
   );
@@ -72,7 +98,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 48,
-    paddingBottom: 16,
   },
   title: {
     fontSize: 24,
@@ -88,7 +113,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     flexDirection: "column",
     justifyContent: "flex-start",
-    alignItems: "flex-start",
   },
   sectionTitle: {
     fontSize: 12,
