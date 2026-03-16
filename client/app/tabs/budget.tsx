@@ -71,7 +71,6 @@ export default function Budget() {
               value: "$X",
             },
           ]}
-          onPress={() => {}}
           isAdd={true}
         />
 
