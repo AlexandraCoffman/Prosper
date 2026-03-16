@@ -3,6 +3,7 @@ import { Colors } from "../../styles/colors";
 import { Fonts } from "../../styles/fonts";
 import { ScrollView } from "react-native";
 import CollapsibleMenu from "../../components/collapsible-menu";
+import { Ionicons } from "@expo/vector-icons";
 
 const Accounts = () => {
   return (
@@ -12,7 +13,10 @@ const Accounts = () => {
       </View>
       <View style={styles.content}>
         <View style={styles.accountContainer}>
-          <Text>CASH</Text>
+          <View style={styles.accountHeader}>
+            <Text>CASH</Text>
+            <Ionicons name="add-circle-outline" size={20} color={Colors.text} />
+          </View>
           <CollapsibleMenu
             label="Jane's Checking"
             icon="business-outline"
@@ -27,7 +31,10 @@ const Accounts = () => {
           />
         </View>
         <View style={styles.accountContainer}>
-          <Text>CREDIT CARD</Text>
+          <View style={styles.accountHeader}>
+            <Text>CREDIT CARD</Text>
+            <Ionicons name="add-circle-outline" size={20} color={Colors.text} />
+          </View>
           <CollapsibleMenu
             label="Quicksilver"
             icon="card-outline"
@@ -48,7 +55,10 @@ const Accounts = () => {
           />
         </View>
         <View style={styles.accountContainer}>
-          <Text>INVESTMENTS</Text>
+          <View style={styles.accountHeader}>
+            <Text>INVESTMENTS</Text>
+            <Ionicons name="add-circle-outline" size={20} color={Colors.text} />
+          </View>
           <CollapsibleMenu
             label="Roth IRA"
             icon="trending-up-outline"
@@ -71,6 +81,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 48,
     paddingBottom: 16,
+  },
+  accountHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   content: {
     flex: 1,
