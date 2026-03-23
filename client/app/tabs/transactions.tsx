@@ -5,16 +5,24 @@ import { Ionicons } from '@expo/vector-icons';
 import Card from "../../components/card";
 import { CreateTransactionButton } from "../../components/button";
 import { MultiSelectButtons } from "../../components/multi-select-buttons";
-import React, {useState} from 'react';
+import React, {useState, useEffect } from 'react';
 
 const Transactions = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [nameText, onChangeNameText] = React.useState('Name*');
   const [amount, onChangeAmount] = React.useState('');
   const [date, onChangeDate] = React.useState('');
+  const [transactions, setTransactions] = React.useState('');
 
   function SubmitTransaction(){
   }
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/transactions')
+      .then(response => response.json())
+      .then(data => setTransactions(data))
+      .catch(error => console.error('Error fetching transactions:', error));
+  }, []);
 
   return (
     

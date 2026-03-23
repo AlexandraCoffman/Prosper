@@ -2,6 +2,7 @@ import express, { Request, Response, Application } from "express";
 import cors from "cors";
 import setup from "./middleware/setup";
 import dotenv from "dotenv";
+import transactionRoutes from './routes/transactionRoutes.ts';
 dotenv.config();
 
 const app: Application = express();
@@ -17,6 +18,8 @@ app.get("/api/test", (req: Request, res: Response) => {
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "API Route not found" });
 });
+
+app.use('/api', transactionRoutes);
 
 const start = async () => {
   await setup();
