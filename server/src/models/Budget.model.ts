@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
-
-interface Budget {
-  want: Number;
-  need: Number;
-  save: Number;
+interface IBudget {
+  want: number;
+  need: number;
+  save: number;
 }
 
 const BudgetSchema = new mongoose.Schema({
@@ -13,20 +12,23 @@ const BudgetSchema = new mongoose.Schema({
     unique: true,
   },
   income: {
-    type: String,
+    type: Number,
     required: true,
   },
   expense: {
-    type: Date,
+    type: Number,
     required: true,
   },
   budget: {
-    type: Array<Budget>,
+    type: [{
+      want: Number,
+      need: Number,
+      save: Number,
+    }],
     required: true,
     default: [],
   },
 });
 
 const Budget = mongoose.model("Budget", BudgetSchema);
-
 export default Budget;
