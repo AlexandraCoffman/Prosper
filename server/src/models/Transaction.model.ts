@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const TransactionSchema = new mongoose.Schema({
+  userid: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   id: {
     type: String,
     required: true,
