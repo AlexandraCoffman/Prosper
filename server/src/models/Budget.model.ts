@@ -1,34 +1,25 @@
-import mongoose from "mongoose";
-interface IBudget {
-  want: number;
-  need: number;
-  save: number;
-}
+import mongoose from 'mongoose';
 
 const BudgetSchema = new mongoose.Schema({
-  user_id: {
-    type: String,
-    required: true,
-    unique: true,
+  userId: { type: String, required: true, unique: true },
+  month: { type: String, required: true },
+  
+  totalIncome: { type: Number, required: true },
+  totalBills: { type: Number, required: true },
+  
+  splitStrategy: {
+    needs: { type: Number, required: true },
+    wants: { type: Number, required: true },
+    savings: { type: Number, required: true }
   },
-  income: {
-    type: Number,
-    required: true,
-  },
-  expense: {
-    type: Number,
-    required: true,
-  },
-  budget: {
-    type: [{
-      want: Number,
-      need: Number,
-      save: Number,
-    }],
-    required: true,
-    default: [],
-  },
-});
 
-const Budget = mongoose.model("Budget", BudgetSchema);
-export default Budget;
+  needsItems: [
+    {
+      title: String,
+      subtitle: String,
+      amount: String
+    }
+  ]
+}, { timestamps: true });
+
+export default mongoose.model('Budget', BudgetSchema);
