@@ -15,10 +15,18 @@ export const getBudget = async (req: Request, res: Response) => {
 
 export const upsertBudget = async (req: Request, res: Response) => {
   try {
-    const { userId, month, needsItems } = req.body;
+    const { 
+      userId, 
+      month, 
+      needsItems, 
+      totalIncome, 
+      totalBills, 
+      splitStrategy 
+    } = req.body;
+    
     const budget = await Budget.findOneAndUpdate(
       { userId },
-      { month, needsItems },
+      { month, needsItems, totalIncome, totalBills, splitStrategy },
       { new: true, upsert: true }
     );
     res.status(200).json(budget);
