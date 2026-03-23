@@ -3,6 +3,8 @@ import cors from "cors";
 import setup from "./middleware/setup";
 import dotenv from "dotenv";
 import transactionRoutes from './routes/transactionRoutes.ts';
+import budgetRoutes from "./routes/budget"; 
+
 dotenv.config();
 
 const app: Application = express();
@@ -14,6 +16,7 @@ app.use(express.json());
 app.get("/api/test", (req: Request, res: Response) => {
   res.json({ message: "Test" });
 });
+app.use("/api", budgetRoutes);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "API Route not found" });
