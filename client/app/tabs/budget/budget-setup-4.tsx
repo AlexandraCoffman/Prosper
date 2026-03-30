@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-
+import { StyleSheet, Text, View, ScrollView, TextInput, Alert } from "react-native";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import ProgressHeader from "../../../components/progress-header";
@@ -9,10 +8,12 @@ import LargePieChart from "../../../components/large-pie-chart";
 import CardMonthly from "../../../components/card-monthly";
 
 interface IncomeSplitProps {
-  onNavigateToBudgetPlan?: () => void;
+  onNavigateToBudgetPlan?: (split: {needs: number, wants: number, savings: number}) => void;
   onBack?: () => void;
   onExit?: () => void;
   progress?: number;
+  totalIncome?: number;
+  totalBills?: number;
 }
 
 export default function IncomeSplit({
@@ -20,88 +21,147 @@ export default function IncomeSplit({
   onExit,
   progress = 80,
   onNavigateToBudgetPlan,
+  totalIncome = 1200,
+  totalBills = 0,
 }: IncomeSplitProps) {
-  const [selectedPlan, setSelectedPlan] = useState("plan1");
-  const totalBudget = 1200;
+  const [selectedPlan, setSelectedPlan] = useState("smart");
+  const [customSplit, setCustomSplit] = useState({ needs: "", wants: "", savings: "" });
+  const rawNeedsPct = (totalBills / totalIncome) * 100;
+  let smartNeedsPct = Math.ceil((rawNeedsPct + 2) / 5) * 5;
+  if (smartNeedsPct > 100) smartNeedsPct = 100;
+
+  const smartRemaining = 100 - smartNeedsPct;
+  const smartWantsPct = Math.round((smartRemaining * 0.6) / 5) * 5;
+  const smartSavingsPct = smartRemaining - smartWantsPct;
 
   const plans = [
     {
-      id: "plan1",
-      title: "75/15/10",
-      recommended: true,
-      desc: "Based off the cost of living from your expenses such as rent, utilities, and income from summer months divided up until next income spike",
-      needs: 0.75,
-      wants: 0.15,
-      savings: 0.10,
+      id: "smart",
+      title: `${smartNeedsPct}/${smartWantsPct}/${smartSavingsPct}`,
+      recommended: smartNeedsPct < 50,
+      desc: "Dynamically adjusted based on your actual expenses with room for spending and savings goals.",
+      needs: smartNeedsPct / 100, wants: smartWantsPct / 100, savings: smartSavingsPct / 100,
     },
     {
-      id: "plan2",
+      id: "standard",
       title: "50/30/20",
-      recommended: false,
-      desc: "Standard way to budget with a consistent, full-time paying job which is not recommended for your current livings expenses and income",
-      needs: 0.50,
-      wants: 0.30,
-      savings: 0.20,
-    },
-    {
-      id: "plan3",
-      title: "65/20/15",
-      desc: "Possible with your current need-related expenses with added spending on wants and reaching your savings goal",
-      needs: 0.65,
-      wants: 0.20,
-      savings: 0.15,
+      recommended: smartNeedsPct >= 50, 
+      desc: "Standard way to budget with a consistent, full-time paying job.",
+      needs: 0.50, wants: 0.30, savings: 0.20,
     },
     {
       id: "custom",
       title: "XX/XX/XX",
       desc: "Customize your own budgeting template, based on your income split with your expenses in mind and saving goals",
-      needs: 0.33,
-      wants: 0.33,
-      savings: 0.34,
+      needs: 0, wants: 0, savings: 0,
     },
   ];
 
   const activePlan = plans.find((p) => p.id === selectedPlan) || plans[0];
+  let activeNeeds = activePlan.needs;
+  let activeWants = activePlan.wants;
+  let activeSavings = activePlan.savings;
+
+  if (selectedPlan === "custom") {
+    const n = parseInt(customSplit.needs) || 0;
+    const w = parseInt(customSplit.wants) || 0;
+    const s = parseInt(customSplit.savings) || 0;
+
+    if (n + w + s === 100) {
+      activeNeeds = n / 100;
+      activeWants = w / 100;
+      activeSavings = s / 100;
+    }
+  }
+
+  const needsTotal = totalIncome * activeNeeds;
+  const wantsTotal = totalIncome * activeWants;
+  const savingsTotal = totalIncome * activeSavings;
+
+  const handleContinue = () => {
+    if (selectedPlan === "custom") {
+      const totalPct = (parseInt(customSplit.needs) || 0) + (parseInt(customSplit.wants) || 0) + (parseInt(customSplit.savings) || 0);
+      if (totalPct !== 100) {
+        Alert.alert("Invalid Split", "Your custom budget split must add up to exactly 100.");
+        return;
+      }
+    }
+
+    onNavigateToBudgetPlan?.({
+      needs: activeNeeds,
+      wants: activeWants,
+      savings: activeSavings
+    });
+  };
 
   return (
     <View style={styles.container}>
       <ProgressHeader onBack={onBack} onExit={onExit} progress={progress} />
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Income Split</Text>
         <Text style={styles.description}>
           We recommend this income split based on your previous income, current
           expenses, and financial goals
         </Text>
 
-        {/* Dynamic Pie Chart */}
         <LargePieChart 
-          total={totalBudget}
-          needs={totalBudget * activePlan.needs}
-          wants={totalBudget * activePlan.wants}
-          savings={totalBudget * activePlan.savings}
+          total={totalIncome}
+          needs={needsTotal}
+          wants={wantsTotal}
+          savings={savingsTotal}
           showLegend={true}
         />
 
-        <Text style={styles.sectionTitle}>Needs/Wants/ Savings</Text>
+        <Text style={styles.sectionTitle}>Needs/Wants/Savings</Text>
 
         {plans.map((plan) => (
-          <CardMonthly
-            key={plan.id}
-            id={plan.id}
-            amount={plan.title}
-            desc={plan.desc}
-            recommended={plan.recommended}
-            isSelected={selectedPlan === plan.id}
-            onSelect={() => setSelectedPlan(plan.id)}
-          />
+          <View key={plan.id}>
+            <CardMonthly
+              id={plan.id}
+              amount={plan.title}
+              desc={plan.desc}
+              recommended={plan.recommended}
+              isSelected={selectedPlan === plan.id}
+              onSelect={() => setSelectedPlan(plan.id)}
+            />
+            
+            {/* Minimalist input row that only shows when 'custom' is selected */}
+            {selectedPlan === "custom" && plan.id === "custom" && (
+              <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 15, alignItems: "center" }}>
+                <TextInput
+                  value={customSplit.needs}
+                  onChangeText={(val) => setCustomSplit({ ...customSplit, needs: val })}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="XX"
+                  style={{ fontSize: 18, minWidth: 30, textAlign: "center", color: Colors.text }}
+                />
+                <Text style={{ fontSize: 18, color: Colors.text }}>/</Text>
+                <TextInput
+                  value={customSplit.wants}
+                  onChangeText={(val) => setCustomSplit({ ...customSplit, wants: val })}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="XX"
+                  style={{ fontSize: 18, minWidth: 30, textAlign: "center", color: Colors.text }}
+                />
+                <Text style={{ fontSize: 18, color: Colors.text }}>/</Text>
+                <TextInput
+                  value={customSplit.savings}
+                  onChangeText={(val) => setCustomSplit({ ...customSplit, savings: val })}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="XX"
+                  style={{ fontSize: 18, minWidth: 30, textAlign: "center", color: Colors.text }}
+                />
+              </View>
+            )}
+          </View>
         ))}
 
         <View style={styles.buttonContainer}>
-          <ContinueButton onPress={onNavigateToBudgetPlan} />
+          <ContinueButton onPress={handleContinue} />
         </View>
       </ScrollView>
     </View>

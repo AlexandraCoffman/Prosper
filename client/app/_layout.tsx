@@ -80,10 +80,15 @@ if (!publishableKey) {
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
-  const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in">(
-    "home",
-  );
+  const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in">("home");
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(INITIAL_SAVINGS_GOALS);
+  const [isBudgetCreated, setIsBudgetCreated] = useState(false);
+
+  const [budgetFlowData, setBudgetFlowData] = useState({
+    totalIncome: 0,
+    totalBills: 0,
+    split: { needs: 0.75, wants: 0.15, savings: 0.10 }
+  });
 
   const handleRenameGoal = (oldTitle: string, newTitle: string) => {
     setSavingsGoals((prev) =>
@@ -95,8 +100,6 @@ function AppContent() {
     setSavingsGoals((prev) => prev.filter((g) => g.title !== title));
   };
 
-  const [isBudgetCreated, setIsBudgetCreated] = useState(false);
-
   useEffect(() => {
     const fetchMessage = async () => {
       try {
@@ -107,73 +110,88 @@ function AppContent() {
     };
     fetchMessage();
   }, []);
-  const handleNavChange = (newScreen : string) => {
-      if(newScreen === "Budget" && isBudgetCreated) {
-        setCurrentScreen("BudgetCreated");
-      } else {
-        setCurrentScreen(newScreen);
-      }
-    };
+  const handleNavChange = (newScreen: string) => {
+    if (newScreen === "Budget" && isBudgetCreated) {
+      setCurrentScreen("BudgetCreated");
+    } else {
+      setCurrentScreen(newScreen);
+    }
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case "Dashboard":
-        return (
-          <Dashboard
-            onNavigateToSavingsGoals={() => setScreen("savings-goals")}
-          />
-        );
+        return <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />;
       case "Accounts":
         return <Accounts />;
       case "Transactions":
         return <Transactions />;
       case "Budget":
-        return (
-          <Budget
-            onNavigateToEstimateMonthlyEarnings={() =>
-              setCurrentScreen("MonthlyEarnings")
-            }
-          />
-        );
+        return <Budget onNavigateToEstimateMonthlyEarnings={() => setCurrentScreen("MonthlyEarnings")} />;
+      
       case "MonthlyEarnings":
         return (
           <MonthlyEarnings
             progress={20}
             onBack={() => setCurrentScreen("Budget")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToPickMonthly={() => setCurrentScreen("PickMonthly")}
+            onNavigateToPickMonthly={(totalIncome) => {
+              setBudgetFlowData(prev => ({ ...prev, totalIncome }));
+              setCurrentScreen("PickMonthly");
+            }}
           />
         );
+      
       case "PickMonthly":
         return (
           <PickMonthly
             progress={40}
+            incomeTotal={budgetFlowData.totalIncome}
             onBack={() => setCurrentScreen("MonthlyEarnings")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToBills={() => setCurrentScreen("Bills")}
+            onNavigateToBills={(finalAmount) => {
+              // CAUGHT IT: Overwrite the totalIncome with the custom/selected amount
+              setBudgetFlowData(prev => ({ ...prev, totalIncome: finalAmount || prev.totalIncome }));
+              setCurrentScreen("Bills");
+            }}
           />
         );
+      
       case "Bills":
         return (
           <Bills
             progress={60}
+            baseIncome={budgetFlowData.totalIncome}
             onBack={() => setCurrentScreen("PickMonthly")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToIncomeSplit={() => setCurrentScreen("IncomeSplit")}
+            onNavigateToIncomeSplit={(totalBills, baseIncome) => {
+               // CAUGHT IT: Save the bills and ensure baseIncome matches just in case
+               setBudgetFlowData(prev => ({ ...prev, totalBills, totalIncome: baseIncome || prev.totalIncome }));
+               setCurrentScreen("IncomeSplit");
+            }}
           />
         );
+      
       case "IncomeSplit":
         return (
           <IncomeSplit
             progress={80}
+            totalIncome={budgetFlowData.totalIncome}
+            totalBills={budgetFlowData.totalBills}
             onBack={() => setCurrentScreen("Bills")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToBudgetPlan={() => setCurrentScreen("BudgetPlan")}
+            onNavigateToBudgetPlan={(split) => {
+              setBudgetFlowData(prev => ({ ...prev, split }));
+              setCurrentScreen("BudgetPlan");
+            }}
           />
         );
+      
       case "BudgetPlan":
         return (
           <BudgetPlan
             progress={90}
+            budgetData={budgetFlowData}
             onBack={() => setCurrentScreen("IncomeSplit")}
             onExit={() => setCurrentScreen("Budget")}
             onNavigateToBudgetCreated={() => {
@@ -182,22 +200,21 @@ function AppContent() {
             }}
           />
         );
+        
       case "BudgetCreated":
         return (
-          <BudgetCreated
-            progress={100}
-            onBack={() => setCurrentScreen("BudgetPlan")}
-            onExit={() => setCurrentScreen("BudgetCreated")}
-          />
-        )
-      case "Learn":
-        return <Learn />;
-      default:
-        return (
-          <Dashboard
-            onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+          <BudgetCreated 
+            progress={100} 
+            onBack={() => setCurrentScreen("BudgetPlan")} 
+            onExit={() => setCurrentScreen("BudgetCreated")} 
           />
         );
+        
+      case "Learn":
+        return <Learn />;
+        
+      default:
+        return <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />;
     }
   };
 
@@ -256,9 +273,7 @@ function AppContent() {
 }
 
 function SignedOutFallback() {
-  const [mode, setMode] = useState<"sign-in" | "sign-up" | "dev-home">(
-    "sign-in",
-  );
+  const [mode, setMode] = useState<"sign-in" | "sign-up" | "dev-home">("sign-in");
 
   if (mode === "dev-home") {
     return <AppContent />;

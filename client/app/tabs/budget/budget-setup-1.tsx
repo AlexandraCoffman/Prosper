@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Fonts } from "../../../styles/fonts";
 import { Colors } from "../../../styles/colors";
 import Card from "../../../components/card";
@@ -12,7 +7,7 @@ import { ContinueButton } from "../../../components/button";
 import ProgressHeader from "../../../components/progress-header";
 
 interface MonthlyEarningsProps {
-  onNavigateToPickMonthly?: () => void;
+  onNavigateToPickMonthly?: (total: number) => void;
   onBack?: () => void;
   onExit?: () => void;
   progress?: number;
@@ -28,29 +23,13 @@ export default function MonthlyEarnings({
   const [selectedSeptember, setSelectedSeptember] = useState<number[]>([]);
 
   const octoberData = [
-    {
-      title: "University of Pittsburgh",
-      desc: "October 30",
-      value: "+$1500.81",
-    },
-    {
-      title: "University of Pittsburgh",
-      desc: "October 12",
-      value: "+$1500.81",
-    },
+    { title: "University of Pittsburgh", desc: "October 30", value: "+$1500.81" },
+    { title: "University of Pittsburgh", desc: "October 12", value: "+$1500.81" },
   ];
 
   const septemberData = [
-    {
-      title: "University of Pittsburgh",
-      desc: "September 30",
-      value: "+$1500.81",
-    },
-    {
-      title: "University of Pittsburgh",
-      desc: "September 12",
-      value: "+$1286.81",
-    },
+    { title: "University of Pittsburgh", desc: "September 30", value: "+$1500.81" },
+    { title: "University of Pittsburgh", desc: "September 12", value: "+$1286.81" },
   ];
 
   const toggleOctober = (index: number) => {
@@ -65,18 +44,37 @@ export default function MonthlyEarnings({
     );
   };
 
+  const handleContinue = () => {
+    let octTotal = 0;
+    let septTotal = 0;
+    
+    selectedOctober.forEach(index => {
+       const val = parseFloat(octoberData[index].value.replace(/[^0-9.-]+/g,""));
+       octTotal += val;
+    });
+    
+    selectedSeptember.forEach(index => {
+       const val = parseFloat(septemberData[index].value.replace(/[^0-9.-]+/g,""));
+       septTotal += val;
+    });
+    
+    let monthsSelected = 0;
+    if (selectedOctober.length > 0) monthsSelected++;
+    if (selectedSeptember.length > 0) monthsSelected++;
+
+    let averageIncome = 3000;
+    if (monthsSelected > 0) {
+      averageIncome = (octTotal + septTotal) / monthsSelected;
+    }
+
+    onNavigateToPickMonthly?.(averageIncome);
+  };
+
   return (
     <View style={styles.container}>
-      <ProgressHeader 
-        onBack={onBack} 
-        onExit={onExit} 
-        progress={progress} 
-      />
+      <ProgressHeader onBack={onBack} onExit={onExit} progress={progress} />
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Monthly Earnings</Text>
         <Text style={styles.description}>
           If you’ve had an seasonal or irregular income, click the earnings from
@@ -99,7 +97,7 @@ export default function MonthlyEarnings({
           onItemPress={toggleSeptember}
         />
 
-        <ContinueButton onPress={onNavigateToPickMonthly} />
+        <ContinueButton onPress={handleContinue} />
       </ScrollView>
     </View>
   );

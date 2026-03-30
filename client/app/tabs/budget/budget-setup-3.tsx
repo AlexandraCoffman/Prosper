@@ -7,10 +7,11 @@ import { ContinueButton } from "../../../components/button";
 import Card from "../../../components/card";
 
 interface BillsProps {
-  onNavigateToIncomeSplit?: () => void;
+  onNavigateToIncomeSplit?: (totalBills: number, baseIncome: number) => void;
   onBack?: () => void;
   onExit?: () => void;
   progress?: number;
+  baseIncome?: number;
 }
 
 export default function Bills({
@@ -18,34 +19,15 @@ export default function Bills({
   onExit,
   progress = 60,
   onNavigateToIncomeSplit,
+  baseIncome = 3000,
 }: BillsProps) {
   const [selectedBills, setSelectedBills] = useState<number[]>([]);
 
   const billData = [
-    {
-      title: "Rent",
-      desc: "October 30",
-      value: "-700.12",
-      iconName: "flash-outline" as const,
-    },
-    {
-      title: "Water",
-      desc: "October 30",
-      value: "-25.06",
-      iconName: "water-outline" as const,
-    },
-    {
-      title: "Netflix",
-      desc: "October 30",
-      value: "-14.99",
-      iconName: "videocam-outline" as const,
-    },
-    {
-      title: "Spotify",
-      desc: "October 30",
-      value: "-9.99",
-      iconName: "musical-notes-outline" as const,
-    },
+    { title: "Rent", desc: "October 30", value: "-700.12", iconName: "flash-outline" as const },
+    { title: "Water", desc: "October 30", value: "-25.06", iconName: "water-outline" as const },
+    { title: "Netflix", desc: "October 30", value: "-14.99", iconName: "videocam-outline" as const },
+    { title: "Spotify", desc: "October 30", value: "-9.99", iconName: "musical-notes-outline" as const },
   ];
 
   const handleToggleBill = (index: number) => {
@@ -56,14 +38,20 @@ export default function Bills({
     );
   };
 
+  const handleContinue = () => {
+    let totalBills = 0;
+    selectedBills.forEach(index => {
+       const valueString = billData[index].value.replace(/[^0-9.-]+/g,"");
+       totalBills += Math.abs(parseFloat(valueString)); 
+    });
+    onNavigateToIncomeSplit?.(totalBills, baseIncome);
+  };
+
   return (
     <View style={styles.container}>
       <ProgressHeader onBack={onBack} onExit={onExit} progress={progress} />
       
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Bills & Utilities</Text>
         <Text style={styles.description}>
           Here are the expenses that we found are predictable in cost and
@@ -77,7 +65,7 @@ export default function Bills({
           onItemPress={handleToggleBill}
         />
 
-        <ContinueButton onPress={onNavigateToIncomeSplit} />
+        <ContinueButton onPress={handleContinue} />
         
         <Pressable onPress={() => {}}>
           <Text style={styles.addMissingBill}>Add Missing Bill</Text>
