@@ -2,6 +2,20 @@ import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import User from "../models/User.model";
 
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const { userId } = getAuth(req);
+    const user = await User.findOne({ id: userId });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    res.json({ first_name: user.first_name, last_name: user.last_name, email: user.email });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);

@@ -92,6 +92,7 @@ function AppContent() {
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(
     INITIAL_SAVINGS_GOALS,
   );
+  const [firstName, setFirstName] = useState<string | null>(null);
   const [isBudgetCreated, setIsBudgetCreated] = useState(false);
 
   const [budgetFlowData, setBudgetFlowData] = useState({
@@ -137,6 +138,21 @@ function AppContent() {
 
   useEffect(() => {
     if (!isSignedIn) return;
+    const fetchUserData = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.first_name) setFirstName(data.first_name);
+        }
+      } catch {
+        // first_name stays null; greeting falls back to empty
+      }
+    };
     const fetchSavingsGoals = async () => {
       try {
         const token = await getToken();
@@ -153,6 +169,7 @@ function AppContent() {
         throw new Error("Failed to fetch savings goals from database.");
       }
     };
+    fetchUserData();
     fetchSavingsGoals();
   }, [isSignedIn]);
   const handleNavChange = (newScreen: string) => {
@@ -169,6 +186,7 @@ function AppContent() {
         return (
           <Dashboard
             savingsGoals={savingsGoals}
+            firstName={firstName}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
           />
         );
@@ -280,6 +298,7 @@ function AppContent() {
         return (
           <Dashboard
             savingsGoals={savingsGoals}
+            firstName={firstName}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
           />
         );

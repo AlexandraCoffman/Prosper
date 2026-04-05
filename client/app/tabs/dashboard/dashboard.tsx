@@ -24,6 +24,7 @@ const ZERO_SPENDING_SERIES: SpendingDataPoint[] = [
 
 interface DashboardProps {
   savingsGoals: SavingsGoal[];
+  firstName?: string | null;
   // TODO: implement this when we connect up a bank API.
   spendingFromAccount?: { totalSpending: number; data: SpendingDataPoint[] };
   onNavigateToSavingsGoals?: () => void;
@@ -31,6 +32,7 @@ interface DashboardProps {
 
 export default function Dashboard({
   savingsGoals,
+  firstName,
   spendingFromAccount,
   onNavigateToSavingsGoals,
 }: DashboardProps) {
@@ -60,7 +62,7 @@ export default function Dashboard({
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Hello _____</Text>
+          <Text style={styles.title}>Hello {firstName ?? "there"}!</Text>
           <Text style={styles.description}>
             You're hitting your goals with budgeting this month!
           </Text>
