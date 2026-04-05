@@ -10,7 +10,14 @@ export const getMe = async (req: Request, res: Response) => {
       res.status(404).json({ error: "User not found" });
       return;
     }
-    res.json({ first_name: user.first_name, last_name: user.last_name, email: user.email });
+    res.json({
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      life_info: user.life_info,
+      support: user.support,
+      goals: user.goals,
+    });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -19,7 +26,7 @@ export const getMe = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);
-    const { first_name, last_name, email, goals } = req.body;
+    const { first_name, last_name, email, life_info, support, goals } = req.body;
 
     const existing = await User.findOne({ id: userId });
     if (existing) {
@@ -32,6 +39,8 @@ export const createUser = async (req: Request, res: Response) => {
       first_name,
       last_name,
       email,
+      life_info: life_info ?? [],
+      support: support ?? [],
       goals: goals ?? [],
     });
 

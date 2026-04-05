@@ -5,6 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useSignUp, useAuth } from "@clerk/clerk-expo";
 import { Colors } from "../../styles/colors";
@@ -63,8 +66,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [supportNeed, setSupportNeed] = useState<string | null>(null);
-  const [primaryGoal, setPrimaryGoal] = useState<string | null>(null);
+  const [infoSelections, setInfoSelections] = useState<string[]>([]);
+  const [supportSelections, setSupportSelections] = useState<string[]>([]);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState<SignUpStep>("name");
@@ -145,6 +148,18 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
     goToNext("info");
   };
 
+  const toggleInfo = (item: string) => {
+    setInfoSelections((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item],
+    );
+  };
+
+  const toggleSupport = (item: string) => {
+    setSupportSelections((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item],
+    );
+  };
+
   const toggleGoal = (goal: string) => {
     setSelectedGoals((prev) =>
       prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal],
@@ -217,6 +232,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
           first_name: firstName,
           last_name: lastName,
           email,
+          life_info: infoSelections,
+          support: supportSelections,
           goals: selectedGoals,
         }),
       });
@@ -345,39 +362,38 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               Select all of the options below that apply to you
             </Text>
             <ProsperPicker
+              selectedValues={infoSelections}
               items={[
                 {
                   label: "I currently rent",
-                  onPress: () => setPrimaryGoal("I currently rent"),
+                  onPress: () => toggleInfo("I currently rent"),
                 },
                 {
                   label: "I am married",
-                  onPress: () => setPrimaryGoal("I am married"),
+                  onPress: () => toggleInfo("I am married"),
                 },
                 {
                   label: "I have kids",
-                  onPress: () => setPrimaryGoal("I have kids"),
+                  onPress: () => toggleInfo("I have kids"),
                 },
                 {
                   label: "I have a car",
-                  onPress: () => setPrimaryGoal("I have a car"),
+                  onPress: () => toggleInfo("I have a car"),
                 },
                 {
                   label: "I pay student loans",
-                  onPress: () => setPrimaryGoal("I pay student loans"),
+                  onPress: () => toggleInfo("I pay student loans"),
                 },
                 {
                   label: "I am a dependent",
-                  onPress: () => setPrimaryGoal("I am a dependent"),
+                  onPress: () => toggleInfo("I am a dependent"),
                 },
               ]}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
-              onPress={() => {
-                goToNext("support");
-              }}
+              onPress={() => goToNext("support")}
             />
           </>
         );
@@ -389,40 +405,42 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               Select all of the options below that apply to you
             </Text>
             <ProsperPicker
+              selectedValues={supportSelections}
               items={[
                 {
                   label: "Full-time job",
-                  onPress: () => setSupportNeed("Full-time job"),
+                  onPress: () => toggleSupport("Full-time job"),
                 },
                 {
                   label: "Part-time job",
-                  onPress: () => setSupportNeed("Part-time job"),
+                  onPress: () => toggleSupport("Part-time job"),
                 },
                 {
                   label: "Paid internship",
-                  onPress: () => setSupportNeed("Paid internship"),
+                  onPress: () => toggleSupport("Paid internship"),
                 },
                 {
                   label: "Scholarships/Grants",
-                  onPress: () => setSupportNeed("Scholarships/Grants"),
+                  onPress: () => toggleSupport("Scholarships/Grants"),
                 },
-                { label: "Loans", onPress: () => setSupportNeed("Loans") },
+                {
+                  label: "Loans",
+                  onPress: () => toggleSupport("Loans"),
+                },
                 {
                   label: "Parent/Guardian assistance",
-                  onPress: () => setSupportNeed("Parent/Guardian assistance"),
+                  onPress: () => toggleSupport("Parent/Guardian assistance"),
                 },
                 {
                   label: "Government assistance",
-                  onPress: () => setSupportNeed("Government assistance"),
+                  onPress: () => toggleSupport("Government assistance"),
                 },
               ]}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
-              onPress={() => {
-                goToNext("goals");
-              }}
+              onPress={() => goToNext("goals")}
             />
           </>
         );
@@ -434,6 +452,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               Select the financial goals you would like to achieve
             </Text>
             <ProsperPicker
+              selectedValues={selectedGoals}
               items={[
                 {
                   label: "Build an emergency fund",
@@ -500,31 +519,46 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.outer}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <ProgressHeader
         progress={stepProgress()}
         onBack={handleBack}
         onExit={onSwitchToSignIn}
       />
-      {renderContent()}
-      <TouchableOpacity onPress={onSwitchToSignIn}>
-        <Text style={styles.link}>
-          Already have an account?{" "}
-          <Text style={styles.linkEmphasis}>Sign in</Text>
-        </Text>
-      </TouchableOpacity>
-    </View>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {renderContent()}
+        <TouchableOpacity onPress={onSwitchToSignIn}>
+          <Text style={styles.link}>
+            Already have an account?{" "}
+            <Text style={styles.linkEmphasis}>Sign in</Text>
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 export default SignUpScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  outer: {
     flex: 1,
-    justifyContent: "flex-start",
-    paddingHorizontal: 24,
     backgroundColor: Colors.background,
+  },
+  scroll: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  scrollContent: {
+    paddingBottom: 32,
   },
   title: {
     fontSize: 28,

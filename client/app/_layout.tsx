@@ -16,6 +16,7 @@ import {
   ClerkLoading,
   useAuth,
   useClerk,
+  useUser,
 } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { Colors } from "../styles/colors";
@@ -85,6 +86,7 @@ const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 function AppContent() {
   const { isSignedIn, getToken } = useAuth();
   const { signOut } = useClerk();
+  const { user } = useUser();
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
   const [screen, setScreen] = useState<
     "home" | "savings-goals" | "sign-in" | "sign-up"
@@ -92,7 +94,8 @@ function AppContent() {
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(
     INITIAL_SAVINGS_GOALS,
   );
-  const [firstName, setFirstName] = useState<string | null>(null);
+  const [apiFirstName, setApiFirstName] = useState<string | null>(null);
+  const firstName = apiFirstName ?? user?.firstName ?? null;
   const [isBudgetCreated, setIsBudgetCreated] = useState(false);
 
   const [budgetFlowData, setBudgetFlowData] = useState({
@@ -147,7 +150,7 @@ function AppContent() {
         });
         if (res.ok) {
           const data = await res.json();
-          if (data.first_name) setFirstName(data.first_name);
+          if (data.first_name) setApiFirstName(data.first_name);
         }
       } catch {
         // first_name stays null; greeting falls back to empty
