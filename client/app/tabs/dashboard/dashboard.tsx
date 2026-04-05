@@ -4,6 +4,7 @@ import { Fonts } from "../../../styles/fonts";
 import SpendGraph, { SpendingDataPoint } from "../../../components/spend-graph";
 import { Ionicons } from "@expo/vector-icons";
 import GoalCard from "../../../components/goal-card";
+import type { SavingsGoal } from "../../_layout";
 
 // Mock spending data for spend graph
 // TODO: Reformat to follow DB schema
@@ -16,10 +17,12 @@ const MOCK_SPENDING: SpendingDataPoint[] = [
 ];
 
 interface DashboardProps {
+  savingsGoals: SavingsGoal[];
   onNavigateToSavingsGoals?: () => void;
 }
 
 export default function Dashboard({
+  savingsGoals,
   onNavigateToSavingsGoals,
 }: DashboardProps) {
   return (
@@ -52,21 +55,14 @@ export default function Dashboard({
             <Ionicons name="add-circle-outline" size={16} color={Colors.text} />
           </Pressable>
         </View>
-        <GoalCard
-          label="Emergency Funds"
-          value={1000}
-          onPress={() => onNavigateToSavingsGoals?.()}
-        />
-        <GoalCard
-          label="Vacation Funds"
-          value={500}
-          onPress={() => onNavigateToSavingsGoals?.()}
-        />
-        <GoalCard
-          label="Concert Funds"
-          value={50}
-          onPress={() => onNavigateToSavingsGoals?.()}
-        />
+        {savingsGoals.map((goal) => (
+          <GoalCard
+            key={goal.title}
+            label={goal.title}
+            value={goal.amountSaved}
+            onPress={() => onNavigateToSavingsGoals?.()}
+          />
+        ))}
       </View>
     </ScrollView>
   );

@@ -168,6 +168,7 @@ function AppContent() {
       case "Dashboard":
         return (
           <Dashboard
+            savingsGoals={savingsGoals}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
           />
         );
@@ -278,6 +279,7 @@ function AppContent() {
       default:
         return (
           <Dashboard
+            savingsGoals={savingsGoals}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
           />
         );
