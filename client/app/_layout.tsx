@@ -14,6 +14,8 @@ import {
   SignedOut,
   ClerkLoaded,
   ClerkLoading,
+  useAuth,
+  useClerk,
 } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { Colors } from "../styles/colors";
@@ -79,8 +81,12 @@ if (!publishableKey) {
 }
 
 function AppContent() {
+  const { isSignedIn } = useAuth();
+  const { signOut } = useClerk();
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
-  const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in">("home");
+  const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in" | "sign-up">(
+    "home",
+  );
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(INITIAL_SAVINGS_GOALS);
   const [isBudgetCreated, setIsBudgetCreated] = useState(false);
 
@@ -228,22 +234,38 @@ function AppContent() {
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.screenContent}>
-          <SignInScreen onSwitchToSignUp={() => {}} />
+          <SignInScreen onSwitchToSignUp={() => setScreen("sign-up")} />
         </View>
         <StatusBar style="auto" />
       </View>
     );
   }
 
+  if (screen === "sign-up") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.screenContent}>
+          <SignUpScreen onSwitchToSignIn={() => setScreen("sign-in")} />
+        </View>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  const authButton = isSignedIn ? (
+    <TouchableOpacity style={styles.signIn} onPress={() => signOut()}>
+      <Text style={styles.signInText}>Sign Out</Text>
+    </TouchableOpacity>
+  ) : (
+    <TouchableOpacity style={styles.signIn} onPress={() => setScreen("sign-in")}>
+      <Text style={styles.signInText}>Sign In</Text>
+    </TouchableOpacity>
+  );
+
   if (screen === "savings-goals") {
     return (
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.signIn}
-          onPress={() => setScreen("sign-in")}
-        >
-          <Text style={styles.signInText}>Sign In</Text>
-        </TouchableOpacity>
+        {authButton}
         <View style={styles.screenContent}>
           <SavingsGoals
             onBack={() => setScreen("home")}
@@ -259,12 +281,7 @@ function AppContent() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.signIn}
-        onPress={() => setScreen("sign-in")}
-      >
-        <Text style={styles.signInText}>Sign In</Text>
-      </TouchableOpacity>
+      {authButton}
       <View style={styles.content}>{renderScreen()}</View>
       <BottomNav currentScreen={currentScreen} setScreen={handleNavChange} />
       <StatusBar style="auto" />

@@ -82,13 +82,18 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSwitchToSignUp }) => {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={styles.buttonContainer}>
-        <ProsperButton text="Sign In" onPress={() => {/* TODO: Handle sign in */}} />
+        <ProsperButton
+          text={loading ? "Signing in…" : "Sign In"}
+          onPress={handleSignIn}
+        />
       </View>
 
       <TouchableOpacity>
         <Text style={styles.link}>
           Don&apos;t have an account?{" "}
-          <Text style={styles.linkEmphasis} onPress={() => onSwitchToSignUp()}>Sign up</Text>
+          <Text style={styles.linkEmphasis} onPress={() => onSwitchToSignUp()}>
+            Sign up
+          </Text>
         </Text>
       </TouchableOpacity>
     </View>

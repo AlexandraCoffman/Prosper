@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useSignUp } from "@clerk/clerk-expo";
+import { useSignUp, useAuth } from "@clerk/clerk-expo";
 import { Colors } from "../../styles/colors";
 import ProsperButton from "../../components/button";
 import { ProsperPicker } from "../../components/picker";
@@ -16,10 +16,20 @@ type SignUpScreenProps = {
   onSwitchToSignIn: () => void;
 };
 
-type SignUpStep = "name" | "email" | "password" | "info" | "support" | "goals";
+type SignUpStep =
+  | "name"
+  | "email"
+  | "password"
+  | "info"
+  | "support"
+  | "goals"
+  | "verify";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const { signUp, setActive, isLoaded } = useSignUp();
+  const { getToken } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,6 +38,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [supportNeed, setSupportNeed] = useState<string | null>(null);
   const [primaryGoal, setPrimaryGoal] = useState<string | null>(null);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState<SignUpStep>("name");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +51,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
     "info",
     "support",
     "goals",
+    "verify",
   ];
 
   const stepProgress = () => {
@@ -60,9 +73,30 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
     setStep(next);
   };
 
+  const handleCollectName = () => {
+    if (!firstName.trim()) {
+      setError("Enter your first name to continue.");
+      return;
+    }
+    if (!lastName.trim()) {
+      setError("Enter your last name to continue.");
+      return;
+    }
+    goToNext("email");
+  };
+
   const handleCollectEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
       setError("Enter your email to continue.");
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setError("Enter a valid email address.");
+      return;
+    }
+    if (email !== confirmEmail) {
+      setError("Email addresses do not match.");
       return;
     }
     goToNext("password");
@@ -73,10 +107,24 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
       setError("Enter a password to continue.");
       return;
     }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     goToNext("info");
   };
 
-  const handleSignUp = async () => {
+  const toggleGoal = (goal: string) => {
+    setSelectedGoals((prev) =>
+      prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal],
+    );
+  };
+
+  const handleStartSignUp = async () => {
     if (!isLoaded || loading) return;
     if (!email || !password) {
       setError("Enter your email and password to continue.");
@@ -90,21 +138,71 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
       await signUp.create({
         emailAddress: email,
         password,
+        firstName,
+        lastName,
       });
 
-      // Attempt an email verification, flesh out later
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-
-      // If Clerk has created an active session already, grab it
-      const { createdSessionId } = signUp;
-      if (createdSessionId) {
-        await setActive({ session: createdSessionId });
-      }
+      goToNext("verify");
     } catch (err: any) {
       const message =
         err?.errors?.[0]?.message ||
         err?.message ||
         "Unable to sign up. Please try again.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!isLoaded || loading) return;
+    if (!otpCode) {
+      setError("Enter the verification code to continue.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await signUp.attemptEmailAddressVerification({
+        code: otpCode,
+      });
+
+      if (result.status !== "complete" || !result.createdSessionId) {
+        throw new Error("Verification incomplete. Please try again.");
+      }
+
+      await setActive({ session: result.createdSessionId });
+
+      const token = await getToken();
+      if (!token)
+        throw new Error("Failed to retrieve auth token after sign up.");
+
+      const res = await fetch(`${API_BASE}/api/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          goals: selectedGoals,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Server error ${res.status}`);
+      }
+    } catch (err: any) {
+      const message =
+        err?.errors?.[0]?.message ||
+        err?.message ||
+        "Unable to verify. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -123,22 +221,21 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             <TextInput
               style={styles.input}
               placeholder="First Name*"
-              autoCapitalize="none"
+              autoCapitalize="words"
               value={firstName}
               onChangeText={setFirstName}
             />
             <TextInput
               style={styles.input}
               placeholder="Last Name*"
-              autoCapitalize="none"
+              autoCapitalize="words"
               value={lastName}
               onChangeText={setLastName}
             />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
-              onPress={() => {
-                setStep("email");
-              }}
+              onPress={handleCollectName}
             />
           </>
         );
@@ -168,9 +265,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
-              onPress={() => {
-                setStep("password");
-              }}
+              onPress={handleCollectEmail}
             />
           </>
         );
@@ -185,6 +280,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               style={styles.input}
               placeholder="Password*"
               secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
               value={password}
               onChangeText={setPassword}
             />
@@ -192,15 +289,15 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               style={styles.input}
               placeholder="Confirm Password*"
               secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <ProsperButton
               text="Continue"
-              onPress={() => {
-                handleCollectPassword();
-              }}
+              onPress={handleCollectPassword}
             />
           </>
         );
@@ -304,35 +401,61 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
               items={[
                 {
                   label: "Build an emergency fund",
-                  onPress: () => setPrimaryGoal("Build an emergency fund"),
+                  onPress: () => toggleGoal("Build an emergency fund"),
                 },
                 {
                   label: "Pay off debt",
-                  onPress: () => setPrimaryGoal("Pay off debt"),
+                  onPress: () => toggleGoal("Pay off debt"),
                 },
                 {
                   label: "Save for a large purchase",
-                  onPress: () => setPrimaryGoal("Save for a large purchase"),
+                  onPress: () => toggleGoal("Save for a large purchase"),
                 },
                 {
                   label: "Save for a small purchase",
-                  onPress: () => setPrimaryGoal("Save for a small purchase"),
+                  onPress: () => toggleGoal("Save for a small purchase"),
                 },
                 {
                   label: "Plan a trip",
-                  onPress: () => setPrimaryGoal("Plan a trip"),
+                  onPress: () => toggleGoal("Plan a trip"),
                 },
                 {
                   label: "Manage my finances",
-                  onPress: () => setPrimaryGoal("Manage my finances"),
+                  onPress: () => toggleGoal("Manage my finances"),
                 },
                 {
                   label: "Something else",
-                  onPress: () => setPrimaryGoal("Something else"),
+                  onPress: () => toggleGoal("Something else"),
                 },
               ]}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
+            <ProsperButton
+              text={loading ? "Sending code…" : "Continue"}
+              onPress={handleStartSignUp}
+            />
+          </>
+        );
+      case "verify":
+        return (
+          <>
+            <Text style={styles.title}>Check your email</Text>
+            <Text style={styles.subtitle}>
+              Enter the 6-digit code we sent to {email}
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Verification Code*"
+              autoCapitalize="none"
+              keyboardType="number-pad"
+              value={otpCode}
+              onChangeText={setOtpCode}
+            />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <ProsperButton
+              text={loading ? "Verifying…" : "Complete Sign Up"}
+              onPress={handleVerifyOtp}
+            />
           </>
         );
       default:
