@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
+import { useAuth } from "@clerk/clerk-expo";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import SpendGraph, { SpendingDataPoint } from "../../../components/spend-graph";
@@ -6,8 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import GoalCard from "../../../components/goal-card";
 import type { SavingsGoal } from "../../_layout";
 
-// Mock spending data for spend graph
-// TODO: Reformat to follow DB schema
+// Mock spending when signed out in dev preview
 const MOCK_SPENDING: SpendingDataPoint[] = [
   { day: 1, amount: 85 },
   { day: 8, amount: 210 },
@@ -16,15 +16,43 @@ const MOCK_SPENDING: SpendingDataPoint[] = [
   { day: 29, amount: 275 },
 ];
 
+// Flatline when signed in but no bank data yet
+const ZERO_SPENDING_SERIES: SpendingDataPoint[] = [
+  { day: 1, amount: 0 },
+  { day: 29, amount: 0 },
+];
+
 interface DashboardProps {
   savingsGoals: SavingsGoal[];
+  // TODO: implement this when we connect up a bank API.
+  spendingFromAccount?: { totalSpending: number; data: SpendingDataPoint[] };
   onNavigateToSavingsGoals?: () => void;
 }
 
 export default function Dashboard({
   savingsGoals,
+  spendingFromAccount,
   onNavigateToSavingsGoals,
 }: DashboardProps) {
+  const { isSignedIn } = useAuth();
+
+  let totalSpending: number;
+  let spendingData: SpendingDataPoint[];
+
+  if (
+    spendingFromAccount &&
+    spendingFromAccount.data.length >= 2 &&
+    Number.isFinite(spendingFromAccount.totalSpending)
+  ) {
+    totalSpending = spendingFromAccount.totalSpending;
+    spendingData = spendingFromAccount.data;
+  } else if (isSignedIn) {
+    totalSpending = 0;
+    spendingData = ZERO_SPENDING_SERIES;
+  } else {
+    totalSpending = MOCK_SPENDING.reduce((s, p) => s + p.amount, 0);
+    spendingData = MOCK_SPENDING;
+  }
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContent}
@@ -40,7 +68,7 @@ export default function Dashboard({
       </View>
       <View style={styles.hero}>
         <Text style={styles.sectionTitle}>INSIGHTS & TRANSACTIONS</Text>
-        <SpendGraph totalSpending={789} data={MOCK_SPENDING} />
+        <SpendGraph totalSpending={totalSpending} data={spendingData} />
       </View>
       <View style={styles.hero}>
         <View
