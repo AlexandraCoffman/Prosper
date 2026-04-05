@@ -328,7 +328,6 @@ function AppContent() {
   if (screen === "savings-goals") {
     return (
       <View style={styles.container}>
-        {authButton}
         <View style={styles.screenContent}>
           <SavingsGoals
             onBack={() => setScreen("home")}
@@ -344,7 +343,7 @@ function AppContent() {
 
   return (
     <View style={styles.container}>
-      {authButton}
+      {currentScreen === "Dashboard" ? authButton : null}
       <View style={styles.content}>{renderScreen()}</View>
       <BottomNav currentScreen={currentScreen} setScreen={handleNavChange} />
       <StatusBar style="auto" />
