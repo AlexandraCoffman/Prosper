@@ -80,42 +80,81 @@ if (!publishableKey) {
   );
 }
 
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+
 function AppContent() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const { signOut } = useClerk();
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
-  const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in" | "sign-up">(
-    "home",
+  const [screen, setScreen] = useState<
+    "home" | "savings-goals" | "sign-in" | "sign-up"
+  >("home");
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(
+    INITIAL_SAVINGS_GOALS,
   );
-  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(INITIAL_SAVINGS_GOALS);
   const [isBudgetCreated, setIsBudgetCreated] = useState(false);
 
   const [budgetFlowData, setBudgetFlowData] = useState({
     totalIncome: 0,
     totalBills: 0,
-    split: { needs: 0.75, wants: 0.15, savings: 0.10 }
+    split: { needs: 0.75, wants: 0.15, savings: 0.1 },
   });
 
+  const pushSavingsGoals = async (goals: SavingsGoal[]) => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      await fetch(`${API_BASE}/api/savings-goals`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ goals }),
+      });
+    } catch {
+      throw new Error("Failed to push savings goals to database.");
+    }
+  };
+
   const handleRenameGoal = (oldTitle: string, newTitle: string) => {
-    setSavingsGoals((prev) =>
-      prev.map((g) => (g.title === oldTitle ? { ...g, title: newTitle } : g))
-    );
+    setSavingsGoals((prev) => {
+      const next = prev.map((g) =>
+        g.title === oldTitle ? { ...g, title: newTitle } : g,
+      );
+      pushSavingsGoals(next);
+      return next;
+    });
   };
 
   const handleDeleteGoal = (title: string) => {
-    setSavingsGoals((prev) => prev.filter((g) => g.title !== title));
+    setSavingsGoals((prev) => {
+      const next = prev.filter((g) => g.title !== title);
+      pushSavingsGoals(next);
+      return next;
+    });
   };
 
   useEffect(() => {
-    const fetchMessage = async () => {
+    if (!isSignedIn) return;
+    const fetchSavingsGoals = async () => {
       try {
-        await fetch("http://localhost:3000/api/test");
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/savings-goals`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.goals) && data.goals.length > 0) {
+          setSavingsGoals(data.goals);
+        }
       } catch {
-        // server unreachable in dev
+        throw new Error("Failed to fetch savings goals from database.");
       }
     };
-    fetchMessage();
-  }, []);
+    fetchSavingsGoals();
+  }, [isSignedIn]);
   const handleNavChange = (newScreen: string) => {
     if (newScreen === "Budget" && isBudgetCreated) {
       setCurrentScreen("BudgetCreated");
@@ -127,14 +166,24 @@ function AppContent() {
   const renderScreen = () => {
     switch (currentScreen) {
       case "Dashboard":
-        return <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />;
+        return (
+          <Dashboard
+            onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+          />
+        );
       case "Accounts":
         return <Accounts />;
       case "Transactions":
         return <Transactions />;
       case "Budget":
-        return <Budget onNavigateToEstimateMonthlyEarnings={() => setCurrentScreen("MonthlyEarnings")} />;
-      
+        return (
+          <Budget
+            onNavigateToEstimateMonthlyEarnings={() =>
+              setCurrentScreen("MonthlyEarnings")
+            }
+          />
+        );
+
       case "MonthlyEarnings":
         return (
           <MonthlyEarnings
@@ -142,12 +191,12 @@ function AppContent() {
             onBack={() => setCurrentScreen("Budget")}
             onExit={() => setCurrentScreen("Budget")}
             onNavigateToPickMonthly={(totalIncome) => {
-              setBudgetFlowData(prev => ({ ...prev, totalIncome }));
+              setBudgetFlowData((prev) => ({ ...prev, totalIncome }));
               setCurrentScreen("PickMonthly");
             }}
           />
         );
-      
+
       case "PickMonthly":
         return (
           <PickMonthly
@@ -157,12 +206,15 @@ function AppContent() {
             onExit={() => setCurrentScreen("Budget")}
             onNavigateToBills={(finalAmount) => {
               // CAUGHT IT: Overwrite the totalIncome with the custom/selected amount
-              setBudgetFlowData(prev => ({ ...prev, totalIncome: finalAmount || prev.totalIncome }));
+              setBudgetFlowData((prev) => ({
+                ...prev,
+                totalIncome: finalAmount || prev.totalIncome,
+              }));
               setCurrentScreen("Bills");
             }}
           />
         );
-      
+
       case "Bills":
         return (
           <Bills
@@ -171,13 +223,17 @@ function AppContent() {
             onBack={() => setCurrentScreen("PickMonthly")}
             onExit={() => setCurrentScreen("Budget")}
             onNavigateToIncomeSplit={(totalBills, baseIncome) => {
-               // CAUGHT IT: Save the bills and ensure baseIncome matches just in case
-               setBudgetFlowData(prev => ({ ...prev, totalBills, totalIncome: baseIncome || prev.totalIncome }));
-               setCurrentScreen("IncomeSplit");
+              // CAUGHT IT: Save the bills and ensure baseIncome matches just in case
+              setBudgetFlowData((prev) => ({
+                ...prev,
+                totalBills,
+                totalIncome: baseIncome || prev.totalIncome,
+              }));
+              setCurrentScreen("IncomeSplit");
             }}
           />
         );
-      
+
       case "IncomeSplit":
         return (
           <IncomeSplit
@@ -187,12 +243,12 @@ function AppContent() {
             onBack={() => setCurrentScreen("Bills")}
             onExit={() => setCurrentScreen("Budget")}
             onNavigateToBudgetPlan={(split) => {
-              setBudgetFlowData(prev => ({ ...prev, split }));
+              setBudgetFlowData((prev) => ({ ...prev, split }));
               setCurrentScreen("BudgetPlan");
             }}
           />
         );
-      
+
       case "BudgetPlan":
         return (
           <BudgetPlan
@@ -206,21 +262,25 @@ function AppContent() {
             }}
           />
         );
-        
+
       case "BudgetCreated":
         return (
-          <BudgetCreated 
-            progress={100} 
-            onBack={() => setCurrentScreen("BudgetPlan")} 
-            onExit={() => setCurrentScreen("BudgetCreated")} 
+          <BudgetCreated
+            progress={100}
+            onBack={() => setCurrentScreen("BudgetPlan")}
+            onExit={() => setCurrentScreen("BudgetCreated")}
           />
         );
-        
+
       case "Learn":
         return <Learn />;
-        
+
       default:
-        return <Dashboard onNavigateToSavingsGoals={() => setScreen("savings-goals")} />;
+        return (
+          <Dashboard
+            onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+          />
+        );
     }
   };
 
@@ -257,7 +317,10 @@ function AppContent() {
       <Text style={styles.signInText}>Sign Out</Text>
     </TouchableOpacity>
   ) : (
-    <TouchableOpacity style={styles.signIn} onPress={() => setScreen("sign-in")}>
+    <TouchableOpacity
+      style={styles.signIn}
+      onPress={() => setScreen("sign-in")}
+    >
       <Text style={styles.signInText}>Sign In</Text>
     </TouchableOpacity>
   );
@@ -290,7 +353,9 @@ function AppContent() {
 }
 
 function SignedOutFallback() {
-  const [mode, setMode] = useState<"sign-in" | "sign-up" | "dev-home">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "sign-up" | "dev-home">(
+    "sign-in",
+  );
 
   if (mode === "dev-home") {
     return <AppContent />;

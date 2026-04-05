@@ -27,6 +27,33 @@ type SignUpStep =
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
+const INITIAL_SAVINGS_GOALS = [
+  {
+    title: "Emergency Funds",
+    accountName: "Morgan Stanley HYSA",
+    monthlyDeposit: 50,
+    amountSaved: 500,
+    amountRemaining: 500,
+    projectedCompletionDate: "04/09/2026",
+  },
+  {
+    title: "Vacation Funds",
+    accountName: "BoFa Savings Personal",
+    monthlyDeposit: 20,
+    amountSaved: 20,
+    amountRemaining: 500,
+    projectedCompletionDate: "02/20/2026",
+  },
+  {
+    title: "Concert Funds",
+    accountName: "BoFa Savings Personal",
+    monthlyDeposit: 25,
+    amountSaved: 50,
+    amountRemaining: 100,
+    projectedCompletionDate: "12/30/2025",
+  },
+];
+
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
   const { signUp, setActive, isLoaded } = useSignUp();
   const { getToken } = useAuth();
@@ -198,6 +225,15 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
         const body = await res.json().catch(() => ({}));
         throw new Error(body?.error ?? `Server error ${res.status}`);
       }
+
+      await fetch(`${API_BASE}/api/savings-goals`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ goals: INITIAL_SAVINGS_GOALS }),
+      });
     } catch (err: any) {
       const message =
         err?.errors?.[0]?.message ||

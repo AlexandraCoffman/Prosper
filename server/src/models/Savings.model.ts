@@ -1,31 +1,23 @@
 import mongoose from "mongoose";
 
-const SavingsSchema = new mongoose.Schema({
-  user_id: {
-    type: String,
-    required: true,
-    unique: true,
+const SavingsGoalSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    accountName: { type: String, required: true },
+    monthlyDeposit: { type: Number, required: true },
+    amountSaved: { type: Number, required: true },
+    amountRemaining: { type: Number, required: true },
+    projectedCompletionDate: { type: String, required: true },
   },
-  account_id: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-  goal_id: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-});
+  { _id: false },
+);
 
-const Savings = mongoose.model("Savings", SavingsSchema);
+const SavingsSchema = new mongoose.Schema(
+  {
+    userId: { type: String, required: true, unique: true },
+    goals: { type: [SavingsGoalSchema], default: [] },
+  },
+  { timestamps: true },
+);
 
-export default Savings;
+export default mongoose.model("Savings", SavingsSchema);

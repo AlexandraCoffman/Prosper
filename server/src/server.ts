@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import transactionRoutes from './routes/transactionRoutes.ts';
 import budgetRoutes from "./routes/budget";
 import userRoutes from "./routes/userRoutes";
+import savingsGoalRoutes from "./routes/savingsGoalRoutes";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.get("/api/test", (req: Request, res: Response) => {
 app.use("/api", budgetRoutes);
 app.use("/api", userRoutes);
 app.use("/api", transactionRoutes);
+app.use("/api", savingsGoalRoutes);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "API Route not found" });
