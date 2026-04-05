@@ -1,11 +1,11 @@
-// Alexandra Coffman - Budget Created Tab
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 import { Colors } from "../../../styles/colors";
@@ -20,31 +20,60 @@ interface BudgetCreatedProps {
 }
 
 export default function BudgetCreated({progress = 100, onBack, onExit}: BudgetCreatedProps) {
-  const totalBudget = 1200;
-  const needs = 900;
-  const wants = 180;
-  const savings = 120;
+  const [budgetData, setBudgetData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const API_URL = "http://localhost:3000/api";
+  const DUMMY_USER_ID = "user_1";
+
+  useEffect(() => {
+    fetchBudget();
+  }, []);
+
+  const fetchBudget = async () => {
+    try {
+      const response = await fetch(`${API_URL}/budget/${DUMMY_USER_ID}`);
+      if (response.ok) {
+        const data = await response.json();
+        setBudgetData(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
+  const totalBudget = budgetData?.totalIncome || 1200;
+  const activeSplit = budgetData?.splitStrategy || { needs: 0.75, wants: 0.15, savings: 0.10 };
+  
+  const needs = totalBudget * activeSplit.needs;
+  const wants = totalBudget * activeSplit.wants;
+  const savings = totalBudget * activeSplit.savings;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerRightSide} />
         <TouchableOpacity style={styles.headerDateContainer}>
-          <Text style={styles.headerDate}>October 2025</Text>
+          <Text style={styles.headerDate}>{budgetData?.month || "October 2025"}</Text>
           <Ionicons name="chevron-down" size={18} color={Colors.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.headerRightSide, { alignItems: "flex-end" }]}
-        >
+        <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]}>
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
         <View style={styles.chartWrapper}>
           <LargePieChart 
             total={totalBudget}
@@ -53,21 +82,12 @@ export default function BudgetCreated({progress = 100, onBack, onExit}: BudgetCr
             savings={savings}
             showLegend={true}
           />
-          
-          
           <TouchableOpacity style={styles.editButton}>
             <Ionicons name="create-outline" size={20} color={Colors.text} />
           </TouchableOpacity>
         </View>
 
-        <List
-          title="Needs"
-          items={[
-            { title: "Rent", subtitle: "30% of paycheck", amount: "$700", iconName: "home-outline" },
-            { title: "Groceries", subtitle: "10% of paycheck", amount: "$250", iconName: "basket-outline" },
-            { title: "Utilities", subtitle: "5% of paycheck", amount: "$20", iconName: "build-outline" },
-          ]}
-        />
+        <List title="Needs" items={budgetData?.needsItems || []} />
 
         <View style={styles.viewSwitch}>
           <View style={[styles.dotView, styles.dotViewActive]} />

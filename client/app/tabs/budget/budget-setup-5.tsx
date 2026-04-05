@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
@@ -13,6 +13,7 @@ interface BudgetPlanProps {
   onExit?: () => void;
   onNavigateToBudgetCreated?: () => void;
   progress?: number;
+  budgetData?: { totalIncome: number, totalBills: number, split: any };
 }
 
 export default function BudgetPlan({
@@ -20,34 +21,62 @@ export default function BudgetPlan({
   onExit,
   onNavigateToBudgetCreated,
   progress = 100,
+  budgetData
 }: BudgetPlanProps) {
-  const totalBudget = 1200;
-  const needs = 900;
-  const wants = 180;
-  const savings = 120;
+  const [isSaving, setIsSaving] = useState(false);
+
+  const totalBudget = budgetData?.totalIncome || 1200;
+  const totalBills = budgetData?.totalBills || 0;
+  const activeSplit = budgetData?.split || { needs: 0.50, wants: 0.30, savings: 0.20 };
+  
+  const needsTotal = totalBills > totalBudget ? totalBudget : totalBills;
+  const remainingIncome = totalBudget - totalBills > 0 ? totalBudget - totalBills : 0;
+  
+  const wantsRatio = activeSplit.wants / (activeSplit.wants + activeSplit.savings);
+  const savingsRatio = activeSplit.savings / (activeSplit.wants + activeSplit.savings);
+
+  const wantsTotal = remainingIncome * wantsRatio;
+  const savingsTotal = remainingIncome * savingsRatio;
+
+  const handleSaveBudget = async () => {
+    setIsSaving(true);
+    const API_URL = "http://localhost:3000/api";
+    const DUMMY_USER_ID = "user_1";
+
+    const dataToSave = {
+      userId: DUMMY_USER_ID,
+      month: "October 2025",
+      totalIncome: totalBudget,
+      totalBills: totalBills,
+      splitStrategy: activeSplit,
+      needsItems: [
+        { title: "Needs", subtitle: "Fixed Bills", amount: `$${needsTotal.toFixed(0)}`,iconName: "home-outline" },
+        { title: "Wants", subtitle: "Spending Money", amount: `$${wantsTotal.toFixed(0)}`, iconName: "bag-outline" },
+        { title: "Savings", subtitle: "Future Goals", amount: `$${savingsTotal.toFixed(0)}`, iconName: "piggy-bank-outline" },
+      ]
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/budget`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSave),
+      });
+
+      if (response.ok) {
+        onNavigateToBudgetCreated?.(); 
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const budgetSummary = [
-    {
-      title: "Needs",
-      desc: "",
-      value: `$${needs}`,
-      iconName: "checklist",
-      iconType: "Octicons" as const,
-    },
-    {
-      title: "Wants",
-      desc: "",
-      value: `$${wants}`,
-      iconName: "bag-outline",
-      iconType: "Ionicons" as const,
-    },
-    {
-      title: "Savings",
-      desc: "",
-      value: `$${savings}`,
-      iconName: "piggy-bank-outline",
-      iconType: "MaterialCommunityIcons" as const,
-    },
+    { title: "Needs", desc: "", value: `$${needsTotal.toFixed(0)}`, iconName: "checklist", iconType: "Octicons" as const },
+    { title: "Wants", desc: "", value: `$${wantsTotal.toFixed(0)}`, iconName: "bag-outline", iconType: "Ionicons" as const },
+    { title: "Savings", desc: "", value: `$${savingsTotal.toFixed(0)}`, iconName: "piggy-bank-outline", iconType: "MaterialCommunityIcons" as const },
   ];
 
   return (
@@ -63,25 +92,28 @@ export default function BudgetPlan({
         <View style={styles.chartWrapper}>
           <LargePieChart 
             total={totalBudget}
-            needs={needs}
-            wants={wants}
-            savings={savings}
+            needs={needsTotal}
+            wants={wantsTotal}
+            savings={savingsTotal}
             showLegend={true}
           />
-          
           <TouchableOpacity style={styles.editButton}>
             <Ionicons name="create-outline" size={20} color={Colors.text} />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.header}>75/15/10</Text>
-        <Card 
-          body={budgetSummary}
-        />
-        <View style={styles.buttonContainer}>
-          <ContinueButton onPress={onNavigateToBudgetCreated} />
-        </View>
+        <Text style={styles.header}>
+          {`${activeSplit.needs * 100}/${activeSplit.wants * 100}/${activeSplit.savings * 100} Plan`}
+        </Text>
+        <Card body={budgetSummary} />
         
+        <View style={styles.buttonContainer}>
+          {isSaving ? (
+            <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 20 }} />
+          ) : (
+            <ContinueButton onPress={handleSaveBudget} />
+          )}
+        </View>
       </ScrollView>
     </View>
   );

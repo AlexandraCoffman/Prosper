@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-
+import { StyleSheet, Text, View, ScrollView, TextInput, Alert } from "react-native";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import ProgressHeader from "../../../components/progress-header";
@@ -8,52 +7,76 @@ import { ContinueButton } from "../../../components/button";
 import CardMonthly from "../../../components/card-monthly";
 
 interface PickMonthlyProps {
-  onNavigateToBills?: () => void;
+  onNavigateToBills?: (amount?: number) => void;
   onBack?: () => void;
   onExit?: () => void;
   progress?: number;
+  incomeTotal?: number;
+  hasRecentIncome?: boolean; 
+  accountBalance?: number;   
 }
-
-const monthlyBudgetOptions = [
-  {
-    id: "irregular",
-    title: "Irregular",
-    amount: "$1200",
-    desc: "Using the monthly earnings you selected, including your previous higher income and your current amount",
-    recommended: true,
-  },
-  {
-    id: "average",
-    title: "Average",
-    amount: "$450",
-    desc: "Based on your average monthly earnings from the last three months",
-    recommended: false,
-  },
-  {
-    id: "custom",
-    title: "Custom",
-    amount: "$0",
-    desc: "Manually input your monthly earnings",
-    recommended: false,
-  },
-];
 
 export default function PickMonthly({
   onBack,
   onExit,
   progress = 40,
   onNavigateToBills,
+  incomeTotal = 1500,
+  hasRecentIncome = true,
+  accountBalance = 3500, 
 }: PickMonthlyProps) {
-  const [selectedOption, setSelectedOption] = useState<string | null>("irregular");
+  
+  const [selectedOption, setSelectedOption] = useState<string | null>(
+    hasRecentIncome ? "average" : "irregular"
+  );
+  const [customAmount, setCustomAmount] = useState("");
+
+  const monthlyBudgetOptions = [
+    {
+      id: "irregular",
+      title: "Irregular",
+      amount: `$${accountBalance.toFixed(2)}`,
+      desc: "Using the total amount remaining in your account since your last recorded income.",
+      recommended: !hasRecentIncome,
+    },
+    {
+      id: "average",
+      title: "Average",
+      amount: `$${incomeTotal.toFixed(2)}`,
+      desc: "Based on your average monthly earnings from the last three months.",
+      recommended: hasRecentIncome,
+    },
+    {
+      id: "custom",
+      title: "Custom",
+      amount: "$0",
+      desc: "Manually input your monthly earnings",
+      recommended: false,
+    },
+  ];
+
+  const handleContinue = () => {
+    let finalAmount = 0;
+
+    if (selectedOption === "custom") {
+      finalAmount = parseFloat(customAmount);
+      if (isNaN(finalAmount) || finalAmount <= 0) {
+        Alert.alert("Invalid Amount", "Please enter a valid monthly earning amount.");
+        return;
+      }
+    } else if (selectedOption === "average") {
+      finalAmount = incomeTotal;
+    } else if (selectedOption === "irregular") {
+      finalAmount = accountBalance;
+    }
+    onNavigateToBills?.(finalAmount);
+  };
 
   return (
     <View style={styles.container}>
       <ProgressHeader onBack={onBack} onExit={onExit} progress={progress} />
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Estimate Monthly Earnings</Text>
         <Text style={styles.pageDescription}>
           The selected amount will be the total that you have to set your budget
@@ -61,22 +84,36 @@ export default function PickMonthly({
 
         <View style={styles.cardsContainer}>
           {monthlyBudgetOptions.map((option) => (
-            <CardMonthly
-              key={option.id}
-              id={option.id}
-              title={option.title}
-              amount={option.amount}
-              desc={option.desc}
-              recommended={option.recommended}
-              isSelected={selectedOption === option.id}
-              onSelect={() =>
-                setSelectedOption(selectedOption === option.id ? null : option.id)
-              }
-            />
+            <View key={option.id}>
+              <CardMonthly
+                id={option.id}
+                title={option.title}
+                amount={option.amount}
+                desc={option.desc}
+                recommended={option.recommended}
+                isSelected={selectedOption === option.id}
+                onSelect={() =>
+                  setSelectedOption(selectedOption === option.id ? null : option.id)
+                }
+              />
+              {selectedOption === "custom" && option.id === "custom" && (
+                <View style={styles.customInputContainer}>
+                  <Text style={styles.currencySymbol}>$</Text>
+                  <TextInput
+                    value={customAmount}
+                    onChangeText={setCustomAmount}
+                    keyboardType="decimal-pad"
+                    placeholder="0.00"
+                    placeholderTextColor="#A0A0A0"
+                    style={styles.textInput}
+                  />
+                </View>
+              )}
+            </View>
           ))}
         </View>
 
-        <ContinueButton onPress={onNavigateToBills} />
+        <ContinueButton onPress={handleContinue} />
       </ScrollView>
     </View>
   );
@@ -108,4 +145,26 @@ const styles = StyleSheet.create({
   cardsContainer: {
     marginBottom: 10,
   },
+  customInputContainer: {
+    flexDirection: "row", 
+    justifyContent: "center", 
+    marginBottom: 15, 
+    alignItems: "center"
+  },
+  currencySymbol: {
+    fontSize: 20, 
+    ...Fonts.bold,
+    color: Colors.text,
+    marginRight: 4,
+  },
+  textInput: {
+    fontSize: 20, 
+    ...Fonts.bold,
+    minWidth: 80, 
+    textAlign: "center", 
+    color: Colors.text,
+    borderBottomWidth: 1,
+    borderColor: Colors.accent,
+    paddingVertical: 4,
+  }
 });
