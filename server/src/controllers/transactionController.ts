@@ -1,9 +1,21 @@
 import Transaction from '../models/Transaction.model.ts'
 import { Request, Response } from 'express';
+import { getAuth } from '@clerk/express';
+
+export const getMyTransactions = async (req: Request, res: Response) => {
+    try {
+        const { userId } = getAuth(req);
+        const transactions = await Transaction.find({ userid: userId }).sort({ date: -1 });
+        res.status(200).json(transactions);
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+};
+
 export const getTransactions = async (req: Request, res: Response) => {
     try {
         const { userid } = req.params;
-        const transactions = await Transaction.findById(userid);
+        const transactions = await Transaction.find({ userid });
         res.status(200).json(transactions);
     } catch (error) {
         res.status(500).json({ error });

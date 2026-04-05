@@ -172,8 +172,23 @@ function AppContent() {
         throw new Error("Failed to fetch savings goals from database.");
       }
     };
+    const fetchBudgetStatus = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/budget/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          setIsBudgetCreated(true);
+        }
+      } catch {
+        // budget not created yet — leave as false
+      }
+    };
     fetchUserData();
     fetchSavingsGoals();
+    fetchBudgetStatus();
   }, [isSignedIn]);
   const handleNavChange = (newScreen: string) => {
     if (newScreen === "Budget" && isBudgetCreated) {

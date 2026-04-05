@@ -1,28 +1,60 @@
-import { View, Text, TextInput, StyleSheet,ScrollView, TouchableOpacity, Modal} from "react-native";
+import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
 import { Colors } from "../../styles/colors";
 import { Fonts } from "../../styles/fonts";
 import { Ionicons } from '@expo/vector-icons';
 import Card from "../../components/card";
 import { CreateTransactionButton } from "../../components/button";
 import { MultiSelectButtons } from "../../components/multi-select-buttons";
-import React, {useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from "@clerk/clerk-expo";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+
+interface Transaction {
+  _id: string;
+  name: string;
+  date: string;
+  amount: number;
+  type: string;
+  category: string;
+}
 
 const Transactions = () => {
+  const { getToken, isSignedIn } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
-  const [nameText, onChangeNameText] = React.useState('Name*');
-  const [amount, onChangeAmount] = React.useState('');
-  const [date, onChangeDate] = React.useState('');
-  const [transactions, setTransactions] = React.useState('');
+  const [nameText, onChangeNameText] = useState('Name*');
+  const [amount, onChangeAmount] = useState('');
+  const [date, onChangeDate] = useState('');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  function SubmitTransaction(){
+  function SubmitTransaction() {
   }
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/transactions')
-      .then(response => response.json())
-      .then(data => setTransactions(data))
-      .catch(error => console.error('Error fetching transactions:', error));
-  }, []);
+    if (!isSignedIn) {
+      setIsLoading(false);
+      return;
+    }
+    const fetchTransactions = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/transactions/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTransactions(data);
+        }
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, [isSignedIn]);
 
   return (
     
@@ -83,30 +115,36 @@ const Transactions = () => {
         <ScrollView>
           <Text style={styles.title}>Transactions</Text>
             <Text style={[styles.description, {flex: 1}]}>
-              "Check out how you're doing this month compared to previous ones!"
+              Check out how you're doing this month compared to previous ones!
             </Text>
 
-          <View style = {[{flexDirection: "row",justifyContent: 'flex-end',  alignItems: 'flex-end'}]}> 
+          <View style={[{flexDirection: "row", justifyContent: 'flex-end', alignItems: 'flex-end'}]}>
            <TouchableOpacity style={{paddingRight: 5}} onPress={() => setModalVisible(true)}>
-              <Ionicons name="add-circle-outline"  size={26} color={Colors.text} flex={2}/>
+              <Ionicons name="add-circle-outline" size={26} color={Colors.text} />
             </TouchableOpacity>
             <TouchableOpacity style={{paddingRight: 5}}>
-              <Ionicons name="funnel-outline" size={26} color={Colors.text} flex={2}/>
+              <Ionicons name="funnel-outline" size={26} color={Colors.text} />
             </TouchableOpacity>
            </View>
-          <Card header= "Transactions" 
-          body= {[{title: "Expense", desc: "date, time", value: "100"}, 
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-          ]}
-          isNav={false}
-          />
+          {isLoading ? (
+            <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 40 }} />
+          ) : transactions.length === 0 ? (
+            <Text style={[styles.description, { textAlign: 'center', marginTop: 40 }]}>
+              No transactions yet.
+            </Text>
+          ) : (
+            <Card
+              header="Transactions"
+              body={transactions.map((t) => ({
+                title: t.name,
+                desc: new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                value: t.type === "Credit"
+                  ? `+$${t.amount.toFixed(2)}`
+                  : `-$${t.amount.toFixed(2)}`,
+              }))}
+              isNav={false}
+            />
+          )}
        </ScrollView>
     </View>
   );

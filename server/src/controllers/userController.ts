@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import User from "../models/User.model";
+import { seedUserData } from "../utils/seedUserData";
 
 export const getMe = async (req: Request, res: Response) => {
   try {
@@ -45,6 +46,13 @@ export const createUser = async (req: Request, res: Response) => {
     });
 
     await user.save();
+
+    try {
+      await seedUserData(userId as string);
+    } catch (seedErr) {
+      console.error("Failed to seed sample data for new user:", seedErr);
+    }
+
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ error });
