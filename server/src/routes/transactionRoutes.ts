@@ -1,5 +1,11 @@
 import express from 'express';
-import { getMyTransactions, getTransactions, addTransaction, deleteTransaction, filterTransaction } from '../controllers/transactionController.ts';
+import {
+  getMyTransactions,
+  getTransactions,
+  addTransaction,
+  deleteTransaction,
+  filterTransaction,
+} from "../controllers/transactionController";
 import { requireClerkAuth } from '../middleware/clerkAuth';
 
 const router = express.Router();
