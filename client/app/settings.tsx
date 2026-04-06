@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,9 +7,11 @@ import {
   Pressable,
   TouchableOpacity,
 } from "react-native";
-import { useClerk } from "@clerk/clerk-expo";
+import { useClerk, useAuth } from "@clerk/clerk-expo";
 import { Fonts } from "../styles/fonts";
 import { Colors } from "../styles/colors";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
 interface SettingsProps {
   onBack?: () => void;
@@ -16,6 +19,36 @@ interface SettingsProps {
 
 const Settings = ({ onBack }: SettingsProps) => {
   const { signOut } = useClerk();
+  const { getToken } = useAuth();
+  const [userData, setUserData] = useState<{
+    first_name: string;
+    last_name: string;
+    email: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) setUserData(await res.json());
+      } catch {
+        console.error("Failed to fetch user data.");
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const initials = userData
+    ? `${userData.first_name[0] ?? ""}${userData.last_name[0] ?? ""}`.toUpperCase()
+    : "JD";
+  const fullName = userData
+    ? `${userData.first_name} ${userData.last_name}`
+    : "Jane Doe";
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -43,13 +76,13 @@ const Settings = ({ onBack }: SettingsProps) => {
             }}
           >
             <Text style={{ color: Colors.text, fontSize: 18, ...Fonts.bold }}>
-              JD
+              {initials}
             </Text>
           </View>
           <View style={styles.profileContainer}>
-            <Text style={{ ...Fonts.regular, fontSize: 18 }}>Jane Doe</Text>
+            <Text style={{ ...Fonts.regular, fontSize: 18 }}>{fullName}</Text>
             <Text style={{ ...Fonts.regular, fontSize: 14 }}>
-              jane.doe@example.com
+              {userData?.email ?? "jane.doe@example.com"}
             </Text>
           </View>
         </View>
@@ -59,7 +92,10 @@ const Settings = ({ onBack }: SettingsProps) => {
             borderRadius: 8,
             margin: 16,
           }}
-          onPress={() => { signOut(); onBack?.(); }}
+          onPress={() => {
+            signOut();
+            onBack?.();
+          }}
         >
           <Text
             style={{
