@@ -7,6 +7,7 @@ import ProgressHeader from "../../../components/progress-header";
 import LargePieChart from "../../../components/large-pie-chart";
 import Card from "../../../components/card";
 import { ContinueButton } from "../../../components/button";
+import { useAuth } from "@clerk/clerk-expo";
 
 interface BudgetPlanProps {
   onBack?: () => void;
@@ -37,14 +38,14 @@ export default function BudgetPlan({
 
   const wantsTotal = remainingIncome * wantsRatio;
   const savingsTotal = remainingIncome * savingsRatio;
-
+  const { userId, getToken } = useAuth();
   const handleSaveBudget = async () => {
     setIsSaving(true);
-    const API_URL = "http://localhost:3000/api";
-    const DUMMY_USER_ID = "user_1";
+    const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+    const token = await getToken();
 
     const dataToSave = {
-      userId: DUMMY_USER_ID,
+      userId: userId,
       month: "October 2025",
       totalIncome: totalBudget,
       totalBills: totalBills,
@@ -57,9 +58,12 @@ export default function BudgetPlan({
     };
 
     try {
-      const response = await fetch(`${API_URL}/budget`, {
+      const response = await fetch(`${API_URL}/api/budget`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(dataToSave),
       });
 
