@@ -9,9 +9,10 @@ import { CreateBudgetButton } from "../../../components/button";
 
 interface MonthlyEarningsProps {
   onNavigateToEstimateMonthlyEarnings?: () => void;
+  onNavigateToSettings?: () => void;
 }
 
-export default function Budget({ onNavigateToEstimateMonthlyEarnings }: MonthlyEarningsProps) {
+export default function Budget({ onNavigateToEstimateMonthlyEarnings, onNavigateToSettings }: MonthlyEarningsProps) {
   const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -55,7 +56,7 @@ export default function Budget({ onNavigateToEstimateMonthlyEarnings }: MonthlyE
             <Text style={styles.headerDate}>October 2025</Text>
             <Ionicons name="chevron-down" size={18} color={Colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]}>
+          <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]} onPress={onNavigateToSettings}>
             <Ionicons name="settings-outline" size={22} color={Colors.text} />
           </TouchableOpacity>
         </View>
@@ -107,7 +108,7 @@ export default function Budget({ onNavigateToEstimateMonthlyEarnings }: MonthlyE
           <Text style={styles.headerDate}>{budgetData.month}</Text>
           <Ionicons name="chevron-down" size={18} color={Colors.text} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]}>
+        <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]} onPress={onNavigateToSettings}>
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>
       </View>

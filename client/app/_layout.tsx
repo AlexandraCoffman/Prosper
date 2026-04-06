@@ -25,6 +25,7 @@ import SignUpScreen from "./auth/sign-up";
 import BottomNav from "../components/nav-bar";
 import SavingsGoals from "./tabs/dashboard/savings-goals";
 import Dashboard from "./tabs/dashboard/dashboard";
+import Settings from "./settings";
 import Budget from "./tabs/budget/budget-not-setup";
 import Accounts from "./tabs/accounts";
 import Transactions from "./tabs/transactions";
@@ -89,8 +90,25 @@ function AppContent() {
   const { user } = useUser();
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
   const [screen, setScreen] = useState<
-    "home" | "savings-goals" | "sign-in" | "sign-up"
+    "home" | "savings-goals" | "sign-in" | "sign-up" | "settings"
   >("home");
+  const [settingsFrom, setSettingsFrom] = useState<{
+    screen: "home" | "savings-goals";
+    currentScreen: string;
+  }>({ screen: "home", currentScreen: "Dashboard" });
+
+  const handleNavigateToSettings = () => {
+    setSettingsFrom({
+      screen: screen === "savings-goals" ? "savings-goals" : "home",
+      currentScreen,
+    });
+    setScreen("settings");
+  };
+
+  const handleSettingsBack = () => {
+    setScreen(settingsFrom.screen);
+    setCurrentScreen(settingsFrom.currentScreen);
+  };
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(
     INITIAL_SAVINGS_GOALS,
   );
@@ -220,13 +238,14 @@ function AppContent() {
       case "Accounts":
         return <Accounts />;
       case "Transactions":
-        return <Transactions />;
+        return <Transactions onNavigateToSettings={handleNavigateToSettings} />;
       case "Budget":
         return (
           <Budget
             onNavigateToEstimateMonthlyEarnings={() =>
               setCurrentScreen("MonthlyEarnings")
             }
+            onNavigateToSettings={handleNavigateToSettings}
           />
         );
 
@@ -315,6 +334,7 @@ function AppContent() {
             progress={100}
             onBack={() => setCurrentScreen("BudgetPlan")}
             onExit={() => setCurrentScreen("BudgetCreated")}
+            onNavigateToSettings={handleNavigateToSettings}
           />
         );
 
@@ -384,7 +404,19 @@ function AppContent() {
             onRenameGoal={handleRenameGoal}
             onDeleteGoal={handleDeleteGoal}
             firstName={firstName ?? undefined}
+            onNavigateToSettings={handleNavigateToSettings}
           />
+        </View>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  if (screen === "settings") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.screenContent}>
+          <Settings onBack={handleSettingsBack} />
         </View>
         <StatusBar style="auto" />
       </View>

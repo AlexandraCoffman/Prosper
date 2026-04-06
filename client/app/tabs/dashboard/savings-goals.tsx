@@ -19,6 +19,7 @@ interface SavingsGoalsProps {
   onRenameGoal?: (oldTitle: string, newTitle: string) => void;
   onDeleteGoal?: (title: string) => void;
   firstName?: string;
+  onNavigateToSettings?: () => void;
 }
 
 const SavingsGoals = ({
@@ -27,6 +28,7 @@ const SavingsGoals = ({
   onRenameGoal,
   onDeleteGoal,
   firstName,
+  onNavigateToSettings,
 }: SavingsGoalsProps) => {
   return (
     <View style={styles.container}>
@@ -40,6 +42,7 @@ const SavingsGoals = ({
         </View>
         <TouchableOpacity
           style={[styles.headerRight, { alignItems: "flex-end" }]}
+          onPress={onNavigateToSettings}
         >
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>

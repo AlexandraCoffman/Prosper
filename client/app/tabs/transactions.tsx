@@ -19,7 +19,11 @@ interface Transaction {
   category: string;
 }
 
-const Transactions = () => {
+interface TransactionsProps {
+  onNavigateToSettings?: () => void;
+}
+
+const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
   const { getToken, isSignedIn } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [nameText, onChangeNameText] = useState('Name*');
@@ -107,7 +111,7 @@ const Transactions = () => {
           <Ionicons name="chevron-down" size={18} color={Colors.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.headerRightSide, { alignItems: 'flex-end' }]}>
+        <TouchableOpacity style={[styles.headerRightSide, { alignItems: 'flex-end' }]} onPress={onNavigateToSettings}>
           <Ionicons name="settings-outline" size={24} color={Colors.text} />
         </TouchableOpacity>
       </View>

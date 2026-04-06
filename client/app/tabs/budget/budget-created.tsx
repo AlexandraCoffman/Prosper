@@ -17,9 +17,10 @@ interface BudgetCreatedProps {
   progress?: number;
   onBack?: () => void;
   onExit?: () => void;
+  onNavigateToSettings?: () => void;
 }
 
-export default function BudgetCreated({progress = 100, onBack, onExit}: BudgetCreatedProps) {
+export default function BudgetCreated({progress = 100, onBack, onExit, onNavigateToSettings}: BudgetCreatedProps) {
   const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -68,7 +69,7 @@ export default function BudgetCreated({progress = 100, onBack, onExit}: BudgetCr
           <Ionicons name="chevron-down" size={18} color={Colors.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]}>
+        <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]} onPress={onNavigateToSettings}>
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>
       </View>

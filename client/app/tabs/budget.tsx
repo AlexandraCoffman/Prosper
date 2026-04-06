@@ -25,7 +25,11 @@ interface BudgetData {
   needsItems: { title: string; subtitle: string; amount: string }[];
 }
 
-export default function Budget() {
+interface BudgetProps {
+  onNavigateToSettings?: () => void;
+}
+
+export default function Budget({ onNavigateToSettings }: BudgetProps) {
   const { getToken, isSignedIn } = useAuth();
   const [budgetData, setBudgetData] = useState<BudgetData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +77,7 @@ export default function Budget() {
 
         <TouchableOpacity
           style={[styles.headerRightSide, { alignItems: "flex-end" }]}
+          onPress={onNavigateToSettings}
         >
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>
