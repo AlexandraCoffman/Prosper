@@ -9,7 +9,9 @@ const express_1 = require("@clerk/express");
 const getMyTransactions = async (req, res) => {
     try {
         const { userId } = (0, express_1.getAuth)(req);
-        const transactions = await Transaction_model_1.default.find({ userid: userId }).sort({ date: -1 });
+        const transactions = await Transaction_model_1.default.find({ userid: userId }).sort({
+            date: -1,
+        });
         res.status(200).json(transactions);
     }
     catch (error) {
