@@ -22,6 +22,7 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { Colors } from "../styles/colors";
 import SignInScreen from "./auth/sign-in";
 import SignUpScreen from "./auth/sign-up";
+import ForgotPasswordScreen from "./auth/forgot-password";
 import BottomNav from "../components/nav-bar";
 import SavingsGoals from "./tabs/dashboard/savings-goals";
 import Dashboard from "./tabs/dashboard/dashboard";
@@ -90,7 +91,12 @@ function AppContent() {
   const { user } = useUser();
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
   const [screen, setScreen] = useState<
-    "home" | "savings-goals" | "sign-in" | "sign-up" | "settings"
+    | "home"
+    | "savings-goals"
+    | "sign-in"
+    | "sign-up"
+    | "forgot-password"
+    | "settings"
   >("home");
   const [settingsFrom, setSettingsFrom] = useState<{
     screen: "home" | "savings-goals";
@@ -363,7 +369,21 @@ function AppContent() {
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.screenContent}>
-          <SignInScreen onSwitchToSignUp={() => setScreen("sign-up")} />
+          <SignInScreen
+            onSwitchToSignUp={() => setScreen("sign-up")}
+            onForgotPassword={() => setScreen("forgot-password")}
+          />
+        </View>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  if (screen === "forgot-password") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.screenContent}>
+          <ForgotPasswordScreen onBack={() => setScreen("sign-in")} />
         </View>
         <StatusBar style="auto" />
       </View>
@@ -434,9 +454,9 @@ function AppContent() {
 }
 
 function SignedOutFallback() {
-  const [mode, setMode] = useState<"sign-in" | "sign-up" | "dev-home">(
-    "sign-in",
-  );
+  const [mode, setMode] = useState<
+    "sign-in" | "sign-up" | "forgot-password" | "dev-home"
+  >("sign-in");
 
   if (mode === "dev-home") {
     return <AppContent />;
@@ -446,11 +466,14 @@ function SignedOutFallback() {
     if (mode === "sign-in") {
       return (
         <SignInScreen
-          onSwitchToSignUp={() => {
-            setMode("sign-up");
-          }}
+          onSwitchToSignUp={() => setMode("sign-up")}
+          onForgotPassword={() => setMode("forgot-password")}
         />
       );
+    }
+
+    if (mode === "forgot-password") {
+      return <ForgotPasswordScreen onBack={() => setMode("sign-in")} />;
     }
 
     return (

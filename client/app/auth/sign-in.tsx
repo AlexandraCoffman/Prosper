@@ -12,9 +12,13 @@ import ProsperButton from "../../components/button";
 
 type SignInScreenProps = {
   onSwitchToSignUp: () => void;
+  onForgotPassword?: () => void;
 };
 
-const SignInScreen: React.FC<SignInScreenProps> = ({ onSwitchToSignUp }) => {
+const SignInScreen: React.FC<SignInScreenProps> = ({
+  onSwitchToSignUp,
+  onForgotPassword,
+}) => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,7 +79,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSwitchToSignUp }) => {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity onPress={onSwitchToSignUp}>
+      <TouchableOpacity onPress={onForgotPassword}>
         <Text style={styles.linkEmphasis}>Forgot your password?</Text>
       </TouchableOpacity>
 
