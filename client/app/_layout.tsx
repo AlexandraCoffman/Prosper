@@ -139,6 +139,14 @@ function AppContent() {
     });
   };
 
+  const handleAddGoal = (goal: SavingsGoal) => {
+    setSavingsGoals((prev) => {
+      const next = [...prev, goal];
+      if (isSignedIn) pushSavingsGoals(next);
+      return next;
+    });
+  };
+
   useEffect(() => {
     if (!isSignedIn) return;
     const fetchUserData = async () => {
@@ -206,6 +214,7 @@ function AppContent() {
             savingsGoals={savingsGoals}
             firstName={firstName}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+            onAddGoal={handleAddGoal}
           />
         );
       case "Accounts":
@@ -318,6 +327,7 @@ function AppContent() {
             savingsGoals={savingsGoals}
             firstName={firstName}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+            onAddGoal={handleAddGoal}
           />
         );
     }
@@ -373,6 +383,7 @@ function AppContent() {
             savingsGoals={savingsGoals}
             onRenameGoal={handleRenameGoal}
             onDeleteGoal={handleDeleteGoal}
+            firstName={firstName ?? undefined}
           />
         </View>
         <StatusBar style="auto" />
