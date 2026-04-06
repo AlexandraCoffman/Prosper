@@ -1,9 +1,10 @@
 import Transaction from '../models/Transaction.model.ts'
 import { Request, Response } from 'express';
+
 export const getTransactions = async (req: Request, res: Response) => {
     try {
-        const { userid } = req.params;
-        const transactions = await Transaction.findById(userid);
+        const id  = req.params.id;
+        const transactions = await Transaction.find({userid: id }, 'name date amount')
         res.status(200).json(transactions);
     } catch (error) {
         res.status(500).json({ error });

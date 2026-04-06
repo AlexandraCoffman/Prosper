@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet,ScrollView, TouchableOpacity, Modal} from "react-native";
+import { View, Text, TextInput, StyleSheet,ScrollView, TouchableOpacity, Modal, GestureResponderEvent} from "react-native";
 import { Colors } from "../../styles/colors";
 import { Fonts } from "../../styles/fonts";
 import { Ionicons } from '@expo/vector-icons';
@@ -7,22 +7,54 @@ import { CreateTransactionButton } from "../../components/button";
 import { MultiSelectButtons } from "../../components/multi-select-buttons";
 import React, {useState, useEffect } from 'react';
 
+interface Transaction {
+  name: string;
+  date: string;
+  amount: number;
+}
+
 const Transactions = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [nameText, onChangeNameText] = React.useState('Name*');
-  const [amount, onChangeAmount] = React.useState('');
+  const [amount, onChangeAmount] = React.useState(0);
   const [date, onChangeDate] = React.useState('');
-  const [transactions, setTransactions] = React.useState('');
+  const [transactions, setTransactions] = React.useState([]);
+  const [selectedType, setSelectedType] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   function SubmitTransaction(){
   }
-
+//507f1f77bcf86cd799439011
   useEffect(() => {
-    fetch('http://localhost:3000/api/transactions')
+    fetch('http://10.0.2.2:3000/api/transactions/507f1f77bcf86cd799439011')
       .then(response => response.json())
       .then(data => setTransactions(data))
       .catch(error => console.error('Error fetching transactions:', error));
   }, []);
+
+  console.log(transactions)
+
+  async function addTransaction(tname: string, amount: number, date: string, type: string, category: string){
+    console.log (tname + date + amount + type + category)
+    await fetch('http://10.0.2.2:3000/api/transactions/',
+      {method:'POST',
+        headers: { Accept: 'application/json',
+          'Content-Type': "application/json" },
+        body: JSON.stringify({
+          userid: '507f1f77bcf86cd799439011',
+          name: tname,
+          date: date,
+          amount: amount,
+          type: type,
+          category: category,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error adding transactions:', error));
+    setModalVisible(false)
+  }
+
 
   return (
     
@@ -50,8 +82,15 @@ const Transactions = () => {
                   style = {styles.textInputBox}
                 />
                 <TextInput
-                  onChangeText={onChangeAmount}
-                  value={amount}
+                  onChangeText={(value: string) => {
+                    const numericValue = parseInt(value, 10); // Parse string to number
+                    if (!isNaN(numericValue)) {
+                      onChangeAmount(numericValue); // Update the number state
+                    } else if (value === '') {
+                      onChangeAmount(0);}
+                    }
+                  }
+                  value={amount.toString()}
                   placeholder="Amount*"
                   keyboardType="numeric"
                   style = {styles.textInputBox}
@@ -62,9 +101,9 @@ const Transactions = () => {
                   placeholder="Date*"
                   style = {styles.textInputBox}
                 />
-                <MultiSelectButtons title = "Transaction Type" button1="Debit" button2 ="Credit" button3 = "Savings"/>
-                <MultiSelectButtons title = "Category" button1="Need" button2 ="Want" button3 = "Saving"/>
-              <CreateTransactionButton onPress={() => {}} />
+                <MultiSelectButtons title = "Transaction Type" button1="Debit" button2 ="Credit" button3 = "Savings" isSelected= {selectedType} onSelect ={ (x) => setSelectedType(x)}/>
+                <MultiSelectButtons title = "Category" button1="Need" button2 ="Want" button3 = "Saving" isSelected= {selectedCategory} onSelect ={ (x) => setSelectedCategory(x)} />
+              <CreateTransactionButton onPress={() => {addTransaction(nameText, amount, date, selectedType, selectedCategory)}} />
             </View>
           </View>
         </Modal>
@@ -94,19 +133,18 @@ const Transactions = () => {
               <Ionicons name="funnel-outline" size={26} color={Colors.text} flex={2}/>
             </TouchableOpacity>
            </View>
-          <Card header= "Transactions" 
-          body= {[{title: "Expense", desc: "date, time", value: "100"}, 
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-            {title: "Expense", desc: "date, time", value: "100"},
-          ]}
-          isNav={false}
-          />
+            {transactions.map((transaction) => (
+            <Card header= "Transactions" 
+              body= {transactions.map(( entry: Transaction) => ({
+                    title: entry.name,
+                    desc: entry.date,
+                    value: entry.amount
+                  }))
+                }
+              isNav={false}
+              />
+          ))}
+          
        </ScrollView>
     </View>
   );

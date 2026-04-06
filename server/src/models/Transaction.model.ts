@@ -4,12 +4,6 @@ const TransactionSchema = new mongoose.Schema({
   userid: {
     type: String,
     required: true,
-    unique: true,
-  },
-  id: {
-    type: String,
-    required: true,
-    unique: true,
   },
   name: {
     type: String,
@@ -31,7 +25,7 @@ const TransactionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-});
+},{ timestamps: true });
 
 const Transaction = mongoose.model("Transaction", TransactionSchema);
 
