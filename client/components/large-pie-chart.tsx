@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   legendLabel: {
-    fontSize: 10,
+    fontSize: 14,
     ...Fonts.regular,
     color: Colors.text,
   },
