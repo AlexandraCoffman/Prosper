@@ -1,25 +1,26 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../styles/colors';
 import { Fonts } from '../styles/fonts';
 
-export const MultiSelectButtons = ({title, button1, button2, button3}: {title:string, button1:string, button2:string, button3:string}) => {
+export const MultiSelectButtons = ({title, button1, button2, button3, isSelected, onSelect,}: 
+    {title:string, button1:string, button2:string, button3:string, isSelected: string, onSelect: (x:string) => void}) => {
     return(
         <View>
             <View style={styles.header}>
                 <Text style={styles.title}>{title}</Text>
             </View>
             <View style={styles.buttonRow}>
-                <TouchableOpacity  style={styles.createButton}>
+                <Pressable onPress={() => onSelect(button1)} style={[styles.createButton, isSelected=== button1 && styles.selectedButton]}>
                     <Text style={styles.createButtonText}>{button1}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity  style={styles.createButton}>
+                </Pressable>
+                <Pressable  onPress={() => onSelect(button2)} style={[styles.createButton, isSelected=== button2 && styles.selectedButton]}>
                     <Text style={styles.createButtonText}>{button2}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity  style={styles.createButton}>
+                </Pressable>
+                <Pressable onPress={() => onSelect(button3)} style={[styles.createButton, isSelected=== button3 && styles.selectedButton]}>
                     <Text style={styles.createButtonText}>{button3}</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </View>
     )
@@ -61,5 +62,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     ...Fonts.regular,
     color: Colors.text,
+  },
+  selectedButton: {
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.text,
+    shadowColor: Colors.text,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
 })
