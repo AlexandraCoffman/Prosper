@@ -2,32 +2,25 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
+import type { StreakData } from "../app/(tabs)/learn";
 
-const DAYS = [
-  { label: "S", completed: true },
-  { label: "M", completed: true },
-  { label: "T", completed: true },
-  { label: "W", completed: false },
-  { label: "T", completed: false },
-  { label: "F", completed: false },
-  { label: "S", completed: false },
-];
+type Props = {
+  streak: StreakData;
+};
 
-export default function LearnStreakTracker() {
+export default function LearnStreakTracker({ streak }: Props) {
   return (
     <View style={styles.card}>
-      <Text style={styles.streakTitle}>3 day streak</Text>
+      <Text style={styles.streakTitle}>{streak.count} day streak</Text>
       <Text style={styles.streakSubtitle}>
         Complete a lesson today to own your finances
       </Text>
       <View style={styles.daysRow}>
-        {DAYS.map((day, index) => (
+        {streak.days.map((day, index) => (
           <View key={index} style={styles.dayColumn}>
             <Text style={styles.dayLabel}>{day.label}</Text>
             <View style={styles.dayCircle}>
-              {day.completed && (
-                <Text style={styles.checkmark}>✓</Text>
-              )}
+              {day.completed && <Text style={styles.checkmark}>✓</Text>}
             </View>
           </View>
         ))}
