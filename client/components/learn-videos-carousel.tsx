@@ -1,128 +1,114 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Image,
-  TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
+import type { Video } from "../app/(tabs)/learn";
 
-const VIDEOS = [
-  {
-    image: require("../assets/video_thumbnail_1.png"),
-    title: "Budgeting your summer internship for the year",
-  },
-  {
-    image: require("../assets/video_thumbnail_2.png"),
-    title: "Setting up your first investment account",
-  },
-  {
-    image: require("../assets/video_thumbnail_3.png"),
-    title: "Ways to save for those short term goals",
-  },
-  {
-    image: require("../assets/video_thumbnail_4.png"),
-    title: "Budgeting your paycheck for healthy grocery costs",
-  },
-  {
-    image: require("../assets/video_thumbnail_5.png"),
-    title: "Best way to manage school and work",
-  },
-];
+const CARD_WIDTH = 168;
+const CARD_GAP = 20;
 
-export default function LearnVideosCarousel() {
+type Props = {
+  videos: Video[];
+};
+
+export default function LearnVideosCarousel({ videos }: Props) {
+  const [activePage, setActivePage] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  const handleScroll = (e: any) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const page = Math.round(x / (CARD_WIDTH + CARD_GAP));
+    setActivePage(page);
+  };
+
+  const totalDots = Math.min(3, videos.length);
+
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.sectionTitle}>Videos</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Videos</Text>
       <ScrollView
+        ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
+        snapToInterval={CARD_WIDTH + CARD_GAP}
+        decelerationRate="fast"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
       >
-        {VIDEOS.map((video, index) => (
-          <TouchableOpacity key={index} style={styles.card}>
-            <Image source={video.image} style={styles.thumbnail} />
-            <View style={styles.cardBody}>
-              <Ionicons
-                name="play-circle-outline"
-                size={22}
-                color={Colors.text}
-                style={styles.playIcon}
-              />
-              <Text style={styles.videoTitle}>{video.title}</Text>
-            </View>
-          </TouchableOpacity>
+        {videos.map((video, index) => (
+          <View key={index} style={styles.card}>
+            <View style={styles.thumbnail} />
+            <Text style={styles.videoTitle} numberOfLines={2}>
+              {video.title}
+            </Text>
+          </View>
         ))}
       </ScrollView>
 
-      {/* Carousel dots */}
       <View style={styles.dotsRow}>
-        <View style={[styles.dot, styles.dotActive]} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
+        {Array.from({ length: totalDots }).map((_, dot) => (
+          <View
+            key={dot}
+            style={[styles.dot, activePage === dot && styles.dotActive]}
+          />
+        ))}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: 24,
+  container: {
+    marginHorizontal: 20,
+    marginBottom: 12,
   },
-  sectionTitle: {
+  title: {
     fontSize: 20,
     ...Fonts.regular,
     color: Colors.text,
-    marginLeft: 30,
-    marginBottom: 10,
+    marginBottom: 12,
+    marginLeft: 4,
   },
   scrollContent: {
-    paddingLeft: 20,
-    paddingRight: 8,
+    paddingRight: 20,
+    gap: CARD_GAP,
   },
   card: {
-    backgroundColor: Colors.accent2,
-    borderRadius: 20,
-    width: 160,
-    marginRight: 12,
+    width: CARD_WIDTH,
+    borderRadius: 16,
     overflow: "hidden",
+    backgroundColor: Colors.accent,
   },
   thumbnail: {
-    width: "100%",
-    height: 100,
-    resizeMode: "cover",
-  },
-  cardBody: {
-    padding: 8,
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  playIcon: {
-    marginRight: 6,
-    marginTop: 1,
+    width: CARD_WIDTH,
+    height: 110,
+    backgroundColor: Colors.accent2,
+    borderRadius: 12,
   },
   videoTitle: {
-    flex: 1,
     fontSize: 13,
     ...Fonts.regular,
     color: Colors.text,
-    lineHeight: 18,
+    padding: 8,
   },
   dotsRow: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 12,
+    gap: 8,
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: Colors.accent,
-    marginHorizontal: 4,
+    backgroundColor: Colors.accent2,
   },
   dotActive: {
     backgroundColor: Colors.primary,
