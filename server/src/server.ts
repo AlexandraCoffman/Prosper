@@ -3,7 +3,7 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import setup from "./middleware/setup";
 import dotenv from "dotenv";
-import transactionRoutes from './routes/transactionRoutes.ts';
+import transactionRoutes from "./routes/transactionRoutes";
 import budgetRoutes from "./routes/budget";
 import userRoutes from "./routes/userRoutes";
 import savingsGoalRoutes from "./routes/savingsGoalRoutes";

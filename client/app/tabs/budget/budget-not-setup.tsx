@@ -6,6 +6,7 @@ import { Fonts } from "../../../styles/fonts";
 import LargePieChart from "../../../components/large-pie-chart";
 import List from "../../../components/list";
 import { CreateBudgetButton } from "../../../components/button";
+import { useAuth } from "@clerk/clerk-expo";
 
 interface MonthlyEarningsProps {
   onNavigateToEstimateMonthlyEarnings?: () => void;
@@ -15,9 +16,8 @@ interface MonthlyEarningsProps {
 export default function Budget({ onNavigateToEstimateMonthlyEarnings, onNavigateToSettings }: MonthlyEarningsProps) {
   const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const API_URL = "http://localhost:3000/api";
-  const DUMMY_USER_ID = "user_1";
+  const { userId, getToken } = useAuth();
+  const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
   useEffect(() => {
     fetchBudget();
@@ -25,7 +25,16 @@ export default function Budget({ onNavigateToEstimateMonthlyEarnings, onNavigate
 
   const fetchBudget = async () => {
     try {
-      const response = await fetch(`${API_URL}/budget/${DUMMY_USER_ID}`);
+      const token = await getToken();
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      
+      const response = await fetch(`${API_URL}/api/budget/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (response.ok) {
         const data = await response.json();
         setBudgetData(data);

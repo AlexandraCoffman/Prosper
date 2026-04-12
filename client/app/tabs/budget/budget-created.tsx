@@ -12,6 +12,7 @@ import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import LargePieChart from "../../../components/large-pie-chart";
 import List from "../../../components/list";
+import { useAuth } from "@clerk/clerk-expo";
 
 interface BudgetCreatedProps {
   progress?: number;
@@ -24,8 +25,8 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
   const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_URL = "http://localhost:3000/api";
-  const DUMMY_USER_ID = "user_1";
+  const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+  const { userId, getToken } = useAuth();
 
   useEffect(() => {
     fetchBudget();
@@ -33,7 +34,14 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
 
   const fetchBudget = async () => {
     try {
-      const response = await fetch(`${API_URL}/budget/${DUMMY_USER_ID}`);
+      const token = await getToken();
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+      const response = await fetch(`${API_URL}/api/budget/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (response.ok) {
         const data = await response.json();
         setBudgetData(data);
