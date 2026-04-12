@@ -24,7 +24,16 @@ export const getTransactions = async (req: Request, res: Response) => {
 
 export const addTransaction = async (req: Request, res: Response) => {
     try {
-        const transaction = new Transaction(req.body);
+        const { userId } = getAuth(req);
+        const { name, date, amount, type, category, } = req.body;
+        const transaction = new Transaction({
+              user_id: userId,
+              name,
+              date,
+              amount,
+              type,
+              category,
+            });
         await transaction.save();
         res.status(201).json(transaction);
     } catch (error) {

@@ -27,7 +27,7 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
   const { getToken, isSignedIn } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [nameText, onChangeNameText] = useState('Name*');
-  const [amount, onChangeAmount] = useState('');
+  const [amount, onChangeAmount] = useState(0);
   const [date, onChangeDate] = useState('');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,23 +67,29 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
 
   async function addTransaction(tname: string, amount: number, date: string, type: string, category: string){
     console.log (tname + date + amount + type + category)
-    await fetch('http://10.0.2.2:3000/api/transactions/',
-      {method:'POST',
-        headers: { Accept: 'application/json',
-          'Content-Type': "application/json" },
-        body: JSON.stringify({
-          userid: '507f1f77bcf86cd799439011',
-          name: tname,
-          date: date,
-          amount: amount,
-          type: type,
-          category: category,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error adding transactions:', error));
-    setModalVisible(false)
+    try{
+      const token = await getToken();
+      if (!token) return;
+      await fetch(`${API_BASE}/api/transactions/`,
+        {method:'POST',
+          headers: { Accept: 'application/json',
+            'Content-Type': "application/json",
+           Authorization: `Bearer ${token}`,},
+          body: JSON.stringify({
+            name: tname,
+            date: date,
+            amount: amount,
+            type: type,
+            category: category,
+          }),
+      })
+          .then(response => response.json())
+          .then(data => console.log(data))
+      setModalVisible(false)
+    } catch (error) {
+        console.error('Error adding transaction:', error);
+     
+    }
   }
 
 
