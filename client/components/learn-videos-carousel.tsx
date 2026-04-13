@@ -2,9 +2,9 @@ import React, { useRef, useState } from "react";
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   ScrollView,
-  Dimensions,
 } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
@@ -12,6 +12,14 @@ import type { Video } from "../app/tabs/learn";
 
 const CARD_WIDTH = 168;
 const CARD_GAP = 20;
+
+const THUMBNAILS = [
+  require("../assets/video_thumbnail_1.png"),
+  require("../assets/video_thumbnail_2.png"),
+  require("../assets/video_thumbnail_3.png"),
+  require("../assets/video_thumbnail_4.png"),
+  require("../assets/video_thumbnail_5.png"),
+];
 
 type Props = {
   videos: Video[];
@@ -44,7 +52,10 @@ export default function LearnVideosCarousel({ videos }: Props) {
       >
         {videos.map((video, index) => (
           <View key={index} style={styles.card}>
-            <View style={styles.thumbnail} />
+            <Image
+              source={THUMBNAILS[index % THUMBNAILS.length]}
+              style={styles.thumbnail}
+            />
             <Text style={styles.videoTitle} numberOfLines={2}>
               {video.title}
             </Text>
