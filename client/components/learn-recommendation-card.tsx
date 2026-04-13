@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
-import type { Recommendation } from "../app/(tabs)/learn";
+import type { Recommendation } from "../app/tabs/learn";
 
 type Props = {
   recommendation: Recommendation;
