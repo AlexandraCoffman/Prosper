@@ -52,7 +52,11 @@ async function fetchLearnData(token: string): Promise<LearnData> {
   return res.json();
 }
 
-export default function Learn() {
+interface LearnProps {
+  onNavigateToSettings?: () => void;
+}
+
+export default function Learn({ onNavigateToSettings }: LearnProps) {
   const { getToken, isSignedIn, isLoaded } = useAuth();
 
   const [data, setData] = useState<LearnData | null>(null);
@@ -97,7 +101,7 @@ export default function Learn() {
 
   return (
     <View style={styles.container}>
-      <LearnHeader />
+      <LearnHeader onNavigateToSettings={onNavigateToSettings} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
