@@ -40,7 +40,7 @@ export const getLearnData = async (req: Request, res: Response) => {
 
     let progress = await LearnProgress.findOne({ userId });
     if (!progress) {
-      progress = await LearnProgress.create({ userId });
+      progress = await LearnProgress.create({ userId: userId! });
     }
 
     res.json({
