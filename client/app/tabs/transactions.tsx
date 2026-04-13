@@ -63,7 +63,6 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
   }, [isSignedIn]);
 
 
-  console.log(transactions)
 
   async function addTransaction(tname: string, amount: number, date: string, type: string, category: string){
     console.log (tname + date + amount + type + category)
@@ -72,8 +71,7 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
       if (!token) return;
       await fetch(`${API_BASE}/api/transactions/`,
         {method:'POST',
-          headers: { Accept: 'application/json',
-            'Content-Type': "application/json",
+          headers: { 'Content-Type': "application/json",
            Authorization: `Bearer ${token}`,},
           body: JSON.stringify({
             name: tname,

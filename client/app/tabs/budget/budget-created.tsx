@@ -12,6 +12,8 @@ import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import LargePieChart from "../../../components/large-pie-chart";
 import List from "../../../components/list";
+import { useAuth } from "@clerk/clerk-expo";
+import Card from "../../../components/card";
 
 interface BudgetCreatedProps {
   progress?: number;
@@ -20,31 +22,93 @@ interface BudgetCreatedProps {
   onNavigateToSettings?: () => void;
 }
 
+interface Transaction {
+  _id: string;
+  name: string;
+  date: string;
+  amount: number;
+  type: string;
+  category: string;
+}
+
+interface RepeatTransaction {
+  name: string;
+  count: number;
+  totalAmount: number;
+}
+
 export default function BudgetCreated({progress = 100, onBack, onExit, onNavigateToSettings}: BudgetCreatedProps) {
   const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [topData, setTopData] = useState<Transaction[]>([]);
+  const [repeatData, setRepeatData] = useState<RepeatTransaction[]>([]);
 
-  const API_URL = "http://localhost:3000/api";
-  const DUMMY_USER_ID = "user_1";
+  const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+  const { userId, getToken } = useAuth();
 
   useEffect(() => {
     fetchBudget();
+    fetchTopPurchases();
+    fetchRepeatPurchases();
   }, []);
 
   const fetchBudget = async () => {
     try {
-      const response = await fetch(`${API_URL}/budget/${DUMMY_USER_ID}`);
+      const token = await getToken();
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+      const response = await fetch(`${API_URL}/api/budget/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (response.ok) {
         const data = await response.json();
         setBudgetData(data);
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }
 
+  
+    const fetchTopPurchases = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_URL}/api/transactions/top`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTopData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching top purchases:", error);
+      } 
+    };
+
+    const fetchRepeatPurchases = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_URL}/api/transactions/repeat`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRepeatData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching top purchases:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+
+  console.log(topData)
+  
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
@@ -100,21 +164,42 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
            <Text style={styles.spendingTitle}>Spending</Text>
         </View>
 
-        <List
-          title="Reoccuring Charges"
-          items={[
-            { title: "Uber Eats", subtitle: "Average $30.80 per exchange", amount: "$134", iconName: "fast-food-outline" },
-            { title: "Aldi", subtitle: "Average $80.30 per exchange", amount: "$120", iconName: "storefront-outline" },
-          ]}
-        />
-        <List
-          title="Top Largest Purchases"
-          items={[
-            { title: "Lyft", subtitle: "November 12", amount: "$134", iconName: "car-outline" },
-            { title: "Barnes & Noble", subtitle: "November 8", amount: "$120", iconName: "book-outline" },
-            { title: "Salon", subtitle: "November 2", amount: "$250", iconName: "cut-outline" },
-          ]}
-        />
+        
+        { repeatData.length == 0 ?(
+         <>
+            <Text style={[styles.description, { textAlign: 'center', marginTop: 40 }]}>
+              No transactions yet.
+            </Text>
+          </>
+        ) : (
+            <Card
+              header="Reoccuring Charges"
+              body={(repeatData ?? [] ).map((item) => ({
+                title: item.name,
+                desc: `average $${item.totalAmount/ item.count} per exchange`,
+                value: item.totalAmount.toFixed(),
+              }))}
+              isAdd={true}
+            />
+        )}
+
+        { topData.length == 0 ?(
+         <>
+            <Text style={[styles.description, { textAlign: 'center', marginTop: 40 }]}>
+              No transactions yet.
+            </Text>
+          </>
+        ) : (
+             <Card
+              header="Top Largest Purchases"
+              body={(topData).map((item) => ({
+                title: item.name,
+                desc: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                value: `+$${item.amount.toFixed(2)}`,
+              }))}
+              isAdd={true}
+            />
+        )}
       </ScrollView>
     </View>
   );
@@ -196,5 +281,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     ...Fonts.regular,
     color: Colors.text,
-  }
+  },
+   description: {
+    alignItems: "flex-start", 
+    fontSize: 15,
+    paddingRight: 20,
+    ...Fonts.regular,
+  },
 });

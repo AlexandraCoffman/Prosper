@@ -23,8 +23,16 @@ const UserSchema = new mongoose_1.default.Schema({
         required: true,
         unique: true,
     },
+    life_info: {
+        type: [String],
+        default: [],
+    },
+    support: {
+        type: [String],
+        default: [],
+    },
     goals: {
-        type: (Array),
+        type: [String],
         required: true,
         default: [],
     },

@@ -9,7 +9,11 @@ const setup = async () => {
     if (!uri) {
         throw new Error("URI not found in environment variables");
     }
-    await mongoose_1.default.connect(uri);
+    await mongoose_1.default.connect(uri, {
+        // Many hosts (e.g. Render) prefer IPv6 first; Atlas often works more reliably over IPv4.
+        family: 4,
+        serverSelectionTimeoutMS: 10000,
+    });
     console.log("Connected to MongoDB");
 };
 exports.default = setup;
