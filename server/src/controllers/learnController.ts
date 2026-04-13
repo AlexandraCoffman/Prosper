@@ -34,14 +34,66 @@ function buildWeekDays(completedDates: string[]): { label: string; completed: bo
   return days;
 }
 
+export const completeLesson = async (req: Request, res: Response) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const today = toDateString(new Date());
+    const yesterday = toDateString(new Date(Date.now() - 86_400_000));
+
+    const progress = await LearnProgress.findOne({ userId });
+
+    if (!progress) {
+      await LearnProgress.create({
+        userId,
+        streakCount: 1,
+        lastCompletedDate: today,
+        completedDates: [today],
+      });
+      res.status(200).json({ streakCount: 1 });
+      return;
+    }
+
+    if (progress.completedDates.includes(today)) {
+      res.status(200).json({ streakCount: progress.streakCount });
+      return;
+    }
+
+    const newStreakCount = progress.completedDates.includes(yesterday)
+      ? progress.streakCount + 1
+      : 1;
+
+    await LearnProgress.updateOne(
+      { userId },
+      {
+        $addToSet: { completedDates: today },
+        $set: { streakCount: newStreakCount, lastCompletedDate: today },
+      },
+    );
+
+    res.status(200).json({ streakCount: newStreakCount });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
 export const getLearnData = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);
-
-    let progress = await LearnProgress.findOne({ userId });
-    if (!progress) {
-      progress = await LearnProgress.create({ userId: userId! });
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
     }
+
+    const progress = await LearnProgress.findOneAndUpdate(
+      { userId },
+      { $setOnInsert: { userId, streakCount: 0, completedDates: [], lastCompletedDate: null } },
+      { upsert: true, new: true },
+    );
 
     res.json({
       userName: "",
