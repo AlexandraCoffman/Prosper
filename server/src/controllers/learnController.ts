@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
-import User from "../models/User.model";
 import LearnProgress from "../models/Learn.model";
 
 const LESSONS = [
@@ -15,15 +14,6 @@ const VIDEOS = [
   { title: "Investing for Beginners" },
   { title: "How to Pay Off Debt Fast" },
 ];
-
-// Maps goal keywords to the most relevant lesson index
-const GOAL_LESSON_MAP: Record<string, number> = {
-  budget:  0,
-  saving:  1,
-  credit:  2,
-  invest:  1,
-  debt:    1,
-};
 
 function toDateString(date: Date): string {
   return date.toISOString().slice(0, 10); // "YYYY-MM-DD"
@@ -44,21 +34,9 @@ function buildWeekDays(completedDates: string[]): { label: string; completed: bo
   return days;
 }
 
-function pickRecommendation(goals: string[]): (typeof LESSONS)[number] {
-  for (const goal of goals) {
-    const lower = goal.toLowerCase();
-    for (const [keyword, idx] of Object.entries(GOAL_LESSON_MAP)) {
-      if (lower.includes(keyword)) return LESSONS[idx];
-    }
-  }
-  return LESSONS[0];
-}
-
 export const getLearnData = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);
-
-    const user = await User.findOne({ id: userId });
 
     let progress = await LearnProgress.findOne({ userId });
     if (!progress) {
@@ -66,12 +44,12 @@ export const getLearnData = async (req: Request, res: Response) => {
     }
 
     res.json({
-      userName: user.first_name,
+      userName: "",
       streak: {
         count: progress.streakCount,
         days: buildWeekDays(progress.completedDates),
       },
-      recommendation: pickRecommendation(user.goals),
+      recommendation: LESSONS[0],
       lessons: LESSONS,
       videos: VIDEOS,
     });
