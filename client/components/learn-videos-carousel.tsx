@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
-import type { Video } from "../app/(tabs)/learn";
+import type { Video } from "../app/tabs/learn";
 
 const CARD_WIDTH = 168;
 const CARD_GAP = 20;
