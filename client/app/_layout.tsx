@@ -345,7 +345,7 @@ function AppContent() {
         );
 
       case "Learn":
-        return <Learn />;
+        return <Learn onNavigateToSettings={handleNavigateToSettings} />;
 
       default:
         return (
