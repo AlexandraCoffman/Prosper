@@ -59,10 +59,6 @@ export const getLearnData = async (req: Request, res: Response) => {
     const { userId } = getAuth(req);
 
     const user = await User.findOne({ id: userId });
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
 
     let progress = await LearnProgress.findOne({ userId });
     if (!progress) {
