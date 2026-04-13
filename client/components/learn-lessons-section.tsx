@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-//import { useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
-//import type { Lesson } from "../app/(tabs)/learn";
+import type { Lesson } from "../app/tabs/learn";
 
 type Props = {
   lessons: Lesson[];
