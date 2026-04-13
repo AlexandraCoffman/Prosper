@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
-import type { StreakData } from "../app/(tabs)/learn";
+import type { StreakData } from "../app/tabs/learn";
 
 type Props = {
   streak: StreakData;
