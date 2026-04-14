@@ -27,14 +27,16 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
   const { getToken, isSignedIn } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [nameText, onChangeNameText] = useState('Name*');
-  const [amount, onChangeAmount] = useState('');
+  const [amount, onChangeAmount] = useState(0);
   const [date, onChangeDate] = useState('');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   function SubmitTransaction() {
   }
-
+//507f1f77bcf86cd799439011
   useEffect(() => {
     if (!isSignedIn) {
       setIsLoading(false);
@@ -59,6 +61,35 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
     };
     fetchTransactions();
   }, [isSignedIn]);
+
+
+
+  async function addTransaction(tname: string, amount: number, date: string, type: string, category: string){
+    console.log (tname + date + amount + type + category)
+    try{
+      const token = await getToken();
+      if (!token) return;
+      await fetch(`${API_BASE}/api/transactions/`,
+        {method:'POST',
+          headers: { 'Content-Type': "application/json",
+           Authorization: `Bearer ${token}`,},
+          body: JSON.stringify({
+            name: tname,
+            date: date,
+            amount: amount,
+            type: type,
+            category: category,
+          }),
+      })
+          .then(response => response.json())
+          .then(data => console.log(data))
+      setModalVisible(false)
+    } catch (error) {
+        console.error('Error adding transaction:', error);
+     
+    }
+  }
+
 
   return (
     
@@ -86,8 +117,15 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
                   style = {styles.textInputBox}
                 />
                 <TextInput
-                  onChangeText={onChangeAmount}
-                  value={amount}
+                  onChangeText={(value: string) => {
+                    const numericValue = parseInt(value, 10); // Parse string to number
+                    if (!isNaN(numericValue)) {
+                      onChangeAmount(numericValue); // Update the number state
+                    } else if (value === '') {
+                      onChangeAmount(0);}
+                    }
+                  }
+                  value={amount.toString()}
                   placeholder="Amount*"
                   keyboardType="numeric"
                   style = {styles.textInputBox}
@@ -98,9 +136,9 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
                   placeholder="Date*"
                   style = {styles.textInputBox}
                 />
-                <MultiSelectButtons title = "Transaction Type" button1="Debit" button2 ="Credit" button3 = "Savings"/>
-                <MultiSelectButtons title = "Category" button1="Need" button2 ="Want" button3 = "Saving"/>
-              <CreateTransactionButton onPress={() => {}} />
+                <MultiSelectButtons title = "Transaction Type" button1="Debit" button2 ="Credit" button3 = "Savings" isSelected= {selectedType} onSelect ={ (x) => setSelectedType(x)}/>
+                <MultiSelectButtons title = "Category" button1="Need" button2 ="Want" button3 = "Saving" isSelected= {selectedCategory} onSelect ={ (x) => setSelectedCategory(x)} />
+              <CreateTransactionButton onPress={() => {addTransaction(nameText, amount, date, selectedType, selectedCategory)}} />
             </View>
           </View>
         </Modal>

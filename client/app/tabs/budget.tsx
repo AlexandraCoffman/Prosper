@@ -25,6 +25,21 @@ interface BudgetData {
   needsItems: { title: string; subtitle: string; amount: string }[];
 }
 
+interface Transaction {
+  _id: string;
+  name: string;
+  date: string;
+  amount: number;
+  type: string;
+  category: string;
+}
+
+interface RepeatTransaction {
+  name: string;
+  count: number;
+  totalAmount: number;
+}
+
 interface BudgetProps {
   onNavigateToSettings?: () => void;
 }
@@ -32,6 +47,8 @@ interface BudgetProps {
 export default function Budget({ onNavigateToSettings }: BudgetProps) {
   const { getToken, isSignedIn } = useAuth();
   const [budgetData, setBudgetData] = useState<BudgetData | null>(null);
+  const [topData, setTopData] = useState<Transaction[]>([]);
+  const [repeatData, setRepeatData] = useState<RepeatTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +73,45 @@ export default function Budget({ onNavigateToSettings }: BudgetProps) {
         setIsLoading(false);
       }
     };
+
+    const fetchTopPurchases = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/transaction/top`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTopData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching top purchases:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchRepeatPurchases = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/transaction/repeat`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRepeatData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching top purchases:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchBudget();
+    fetchTopPurchases();
+    fetchRepeatPurchases();
   }, [isSignedIn]);
 
   const totalBudget = budgetData?.totalIncome ?? 0;
@@ -112,7 +167,7 @@ export default function Budget({ onNavigateToSettings }: BudgetProps) {
                 value: item.amount,
               }))}
               isAdd={true}
-            />
+            />          
 
             <View style={styles.viewSwitch}>
               <View style={[styles.dotView, styles.dotViewActive]} />
@@ -121,6 +176,49 @@ export default function Budget({ onNavigateToSettings }: BudgetProps) {
             </View>
           </>
         )}
+
+        { repeatData.length == 0 ?(
+         <>
+            <Text style={[styles.description, { textAlign: 'center', marginTop: 40 }]}>
+              No transactions yet.
+            </Text>
+          </>
+        ) : (
+            <Card
+              header="Reoccuring Charges"
+              body={(repeatData ?? [] ).map((item) => ({
+                title: item.name,
+                desc: `average $${item.totalAmount/ item.count} per exchange`,
+                value: item.totalAmount.toFixed(),
+              }))}
+              isAdd={true}
+            />
+        )}
+
+        { topData.length == 0 ?(
+         <>
+            <Text style={[styles.description, { textAlign: 'center', marginTop: 40 }]}>
+              No transactions yet.
+            </Text>
+          </>
+        ) : (
+             <Card
+              header="Top Largest Purchases"
+              body={(topData).map((item) => ({
+                title: item.name,
+                desc: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                value: `+$${item.amount.toFixed(2)}`,
+              }))}
+              isAdd={true}
+            />
+        )}
+  
+
+            <View style={styles.viewSwitch}>
+              <View style={[styles.dotView, styles.dotViewActive]} />
+              <View style={styles.dotView} />
+              <View style={styles.dotView} />
+            </View>
       </ScrollView>
     </View>
   );
@@ -171,5 +269,11 @@ const styles = StyleSheet.create({
   },
   dotViewActive: {
     backgroundColor: Colors.primary,
+  },
+  description: {
+    alignItems: "flex-start", 
+    fontSize: 15,
+    paddingRight: 20,
+    ...Fonts.regular,
   },
 });

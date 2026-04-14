@@ -240,6 +240,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        console.log("idk2")
+        const message =
+        body?.error ?? `Server error ${res.status}`;
+        setError(message);
         throw new Error(body?.error ?? `Server error ${res.status}`);
       }
 
@@ -257,6 +261,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSwitchToSignIn }) => {
         err?.message ||
         "Unable to verify. Please try again.";
       setError(message);
+      throw Error(message);
+
     } finally {
       setLoading(false);
     }

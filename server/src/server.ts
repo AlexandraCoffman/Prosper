@@ -27,9 +27,11 @@ app.use("/api", transactionRoutes);
 app.use("/api", savingsGoalRoutes);
 app.use("/api", learnRoutes);
 
+
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "API Route not found" });
 });
+
 
 const start = async () => {
   await setup();
