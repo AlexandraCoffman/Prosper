@@ -1,18 +1,16 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
 import type { Lesson } from "../app/tabs/learn";
 
 type Props = {
   lessons: Lesson[];
+  onComplete: () => void;
 };
 
-export default function LearnLessonsSection({ lessons }: Props) {
-  const router = useRouter();
-
+export default function LearnLessonsSection({ lessons, onComplete }: Props) {
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Lessons</Text>
@@ -22,7 +20,7 @@ export default function LearnLessonsSection({ lessons }: Props) {
           {index > 0 && <View style={styles.divider} />}
           <TouchableOpacity
             style={styles.lessonRow}
-            onPress={() => router.push(`/lesson/${index}`)}
+            onPress={onComplete}
           >
             <View style={styles.iconCircle}>
               <Ionicons

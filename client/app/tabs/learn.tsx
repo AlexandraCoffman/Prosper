@@ -52,19 +52,60 @@ async function fetchLearnData(token: string): Promise<LearnData> {
   return res.json();
 }
 
-interface LearnProps {
-  onNavigateToSettings?: () => void;
+async function postCompleteLesson(token: string): Promise<{ streakCount: number }> {
+  const res = await fetch(`${BASE_URL}/api/learn/complete`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) throw new Error(`Failed to complete lesson: ${res.status}`);
+  return res.json();
 }
 
-export default function Learn({ onNavigateToSettings }: LearnProps) {
+interface LearnProps {
+  onNavigateToSettings?: () => void;
+  firstName?: string | null;
+}
+
+export default function Learn({ onNavigateToSettings, firstName }: LearnProps) {
   const { getToken, isSignedIn, isLoaded } = useAuth();
 
   const [data, setData] = useState<LearnData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const handleComplete = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const { streakCount } = await postCompleteLesson(token);
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              streak: {
+                ...prev.streak,
+                count: streakCount,
+                days: prev.streak.days.map((d, i) =>
+                  i === prev.streak.days.length - 1 ? { ...d, completed: true } : d
+                ),
+              },
+            }
+          : prev
+      );
+    } catch (e) {
+      console.error("Complete lesson error:", e);
+    }
+  };
+
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      setLoading(false);
+      return;
+    }
 
     (async () => {
       try {
@@ -89,6 +130,14 @@ export default function Learn({ onNavigateToSettings }: LearnProps) {
     );
   }
 
+  if (!isSignedIn) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>Sign in to view your learning progress.</Text>
+      </View>
+    );
+  }
+
   if (error || !data) {
     return (
       <View style={styles.centered}>
@@ -106,10 +155,10 @@ export default function Learn({ onNavigateToSettings }: LearnProps) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.greeting}>Hello {data.userName}!</Text>
+        <Text style={styles.greeting}>Hello {firstName ?? data.userName}!</Text>
         <RecommendationCard recommendation={data.recommendation} />
         <LearnStreakTracker streak={data.streak} />
-        <LearnLessonsSection lessons={data.lessons} />
+        <LearnLessonsSection lessons={data.lessons} onComplete={handleComplete} />
         <LearnVideosCarousel videos={data.videos} />
       </ScrollView>
     </View>
@@ -119,6 +168,7 @@ export default function Learn({ onNavigateToSettings }: LearnProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: "100%",
     backgroundColor: Colors.background,
   },
   scrollContent: {

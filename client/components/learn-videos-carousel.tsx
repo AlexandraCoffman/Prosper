@@ -56,9 +56,12 @@ export default function LearnVideosCarousel({ videos }: Props) {
               source={THUMBNAILS[index % THUMBNAILS.length]}
               style={styles.thumbnail}
             />
-            <Text style={styles.videoTitle} numberOfLines={2}>
-              {video.title}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.videoTitle}>
+                {video.title}
+              </Text>
+              <Image source={require("../assets/play.png")} style={styles.playIcon} />
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.accent2,
   },
   thumbnail: {
     width: CARD_WIDTH,
@@ -103,11 +106,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent2,
     borderRadius: 12,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+  },
+  playIcon: {
+    width: 16,
+    height: 16,
+  },
   videoTitle: {
+    flex: 1,
     fontSize: 13,
     ...Fonts.regular,
     color: Colors.text,
-    padding: 8,
   },
   dotsRow: {
     flexDirection: "row",
