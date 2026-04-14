@@ -18,15 +18,6 @@ export const getMyTransactions = async (req: Request, res: Response) => {
   }
 };
 
-export const getTransactions = async (req: Request, res: Response) => {
-  try {
-    const { userid } = req.params;
-    const transactions = await Transaction.find({ userid });
-    res.status(200).json(transactions);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
 
 export const addTransaction = async (req: Request, res: Response) => {
   try {
@@ -66,7 +57,7 @@ export const filterTransaction = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);
     const { category, type } = req.params
-    const transactions = await Transaction.find({ userid: userId, category, type});
+    const transactions = await Transaction.find({ userid: userId, category:category, type:type});
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error });
@@ -74,25 +65,16 @@ export const filterTransaction = async (req: Request, res: Response) => {
 };
 
 export const topCharges = async (req: Request, res: Response) => {
+
   try {
     const { userId } = getAuth(req);
     const transactions = await Transaction.find({ userid: userId }).sort({
-      date: -1,
-    });
-    //.limit(3);
+      amount: -1,
+    }).limit(3);
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error });
   }
-//   try {
-//     const { userId } = getAuth(req);
-//     const transactions = await Transaction.find({ userid: userId }).sort({
-//       date: -1,
-//     });
-//     res.status(200).json(transactions);
-//   } catch (error) {
-//     res.status(500).json({ error });
-//   }
 };
 
 export const repeatingCharges = async (req: Request, res: Response) => {

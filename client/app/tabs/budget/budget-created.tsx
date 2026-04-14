@@ -32,9 +32,9 @@ interface Transaction {
 }
 
 interface RepeatTransaction {
-  name: string;
+  _id: string;
   count: number;
-  totalAmount: number;
+  totalCost: number;
 }
 
 export default function BudgetCreated({progress = 100, onBack, onExit, onNavigateToSettings}: BudgetCreatedProps) {
@@ -47,16 +47,16 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
   const { userId, getToken } = useAuth();
 
   useEffect(() => {
-    fetchBudget();
+     fetchBudget();
     fetchTopPurchases();
     fetchRepeatPurchases();
+    setIsLoading(false);
   }, []);
 
   const fetchBudget = async () => {
     try {
       const token = await getToken();
       if (!token) {
-        setIsLoading(false);
         return;
       }
       const response = await fetch(`${API_URL}/api/budget/me`, {
@@ -72,6 +72,8 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
   }
 
   
+  
+
     const fetchTopPurchases = async () => {
       try {
         const token = await getToken();
@@ -98,16 +100,13 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
         if (res.ok) {
           const data = await res.json();
           setRepeatData(data);
+          console.log(data)
         }
       } catch (error) {
         console.error("Error fetching top purchases:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      } 
     };
 
-
-  console.log(topData)
   
   if (isLoading) {
     return (
@@ -174,12 +173,12 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
         ) : (
             <Card
               header="Reoccuring Charges"
-              body={(repeatData ?? [] ).map((item) => ({
-                title: item.name,
-                desc: `average $${item.totalAmount/ item.count} per exchange`,
-                value: item.totalAmount.toFixed(),
+              body={(repeatData ).map((item) => ({
+                title: item._id,
+                desc: `Average $${item.totalCost/ item.count} per exchange`,
+                value: `$${item.totalCost.toFixed(2)}`,
               }))}
-              isAdd={true}
+              isAdd={false}
             />
         )}
 
@@ -195,9 +194,9 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
               body={(topData).map((item) => ({
                 title: item.name,
                 desc: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-                value: `+$${item.amount.toFixed(2)}`,
+                value: `$${item.amount.toFixed(2)}`,
               }))}
-              isAdd={true}
+              isAdd={false}
             />
         )}
       </ScrollView>

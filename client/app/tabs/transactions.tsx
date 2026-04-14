@@ -192,7 +192,7 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
       <View style={styles.header}>
       
         <TouchableOpacity style={styles.headerDateContainer}>
-          <Text style={styles.headerDate}>October 2025</Text>
+          <Text style={styles.headerDate}>April 2026</Text>
           <Ionicons name="chevron-down" size={18} color={Colors.text} />
         </TouchableOpacity>
 
