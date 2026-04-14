@@ -64,7 +64,8 @@ exports.deleteTransaction = deleteTransaction;
 const filterTransaction = async (req, res) => {
     try {
         const { userId } = (0, express_1.getAuth)(req);
-        const transactions = await Transaction_model_1.default.find({ userid: userId });
+        const { category, type } = req.params;
+        const transactions = await Transaction_model_1.default.find({ userid: userId, category, type });
         res.status(200).json(transactions);
     }
     catch (error) {

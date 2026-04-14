@@ -3,7 +3,7 @@ import { Colors } from "../../styles/colors";
 import { Fonts } from "../../styles/fonts";
 import { Ionicons } from '@expo/vector-icons';
 import Card from "../../components/card";
-import { CreateTransactionButton } from "../../components/button";
+import { CreateTransactionButton, FilterTransactionButton } from "../../components/button";
 import { MultiSelectButtons } from "../../components/multi-select-buttons";
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "@clerk/clerk-expo";
@@ -26,6 +26,7 @@ interface TransactionsProps {
 const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
   const { getToken, isSignedIn } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalFilterVisible, setModalFilterVisible] = useState(false);
   const [nameText, onChangeNameText] = useState('Name*');
   const [amount, onChangeAmount] = useState(0);
   const [date, onChangeDate] = useState('');
@@ -34,15 +35,15 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
   const [selectedType, setSelectedType] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  function SubmitTransaction() {
-  }
-//507f1f77bcf86cd799439011
   useEffect(() => {
     if (!isSignedIn) {
       setIsLoading(false);
       return;
-    }
-    const fetchTransactions = async () => {
+    } 
+    fetchTransactions();
+  }, [isSignedIn]);
+
+  const fetchTransactions = async () => {
       try {
         const token = await getToken();
         if (!token) return;
@@ -59,9 +60,6 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
         setIsLoading(false);
       }
     };
-    fetchTransactions();
-  }, [isSignedIn]);
-
 
 
   async function addTransaction(tname: string, amount: number, date: string, type: string, category: string){
@@ -88,8 +86,32 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
         console.error('Error adding transaction:', error);
      
     }
+    fetchTransactions()
   }
 
+  async function filterTransaction(type: string, category: string){
+    try{
+      const token = await getToken();
+      if (!token) return;
+      const res = await fetch(`${API_BASE}/api/transactions/filter/${category}/${type}`,
+        {method:'POST',
+          headers: { 'Content-Type': "application/json",
+           Authorization: `Bearer ${token}`,},
+          body: JSON.stringify({
+            type: type,
+            category: category,
+          }),
+      })
+        if (res.ok) {
+          const data = await res.json();
+          setTransactions(data);
+        }
+      setModalFilterVisible(false)
+    } catch (error) {
+        console.error('Error filtering transaction:', error);
+     
+    }
+  }
 
   return (
     
@@ -142,6 +164,31 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
             </View>
           </View>
         </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          backdropColor ={"#f0f5ef10"}
+          visible={modalFilterVisible}
+          onRequestClose={() => {
+            setModalFilterVisible(!modalFilterVisible);
+          }}>
+          <View style = {styles.bottomPopUp}>
+            <View style = {[styles.modalView, { marginTop: "auto"}]}>
+              <View style={[styles.header, {paddingTop : 5, alignItems: "flex-start"}]}>
+                <Text style={styles.title }>Filter Transaction</Text>
+                <TouchableOpacity style={{paddingLeft: 90}}
+                  onPress={() => setModalFilterVisible(!modalFilterVisible)}>
+                  <Ionicons name="close-outline" size={24} color={Colors.text}  />
+                </TouchableOpacity>
+              </View>
+                <MultiSelectButtons title = "Transaction Type" button1="Debit" button2 ="Credit" button3 = "Savings" isSelected= {selectedType} onSelect ={ (x) => setSelectedType(x)}/>
+                <MultiSelectButtons title = "Category" button1="Need" button2 ="Want" button3 = "Saving" isSelected= {selectedCategory} onSelect ={ (x) => setSelectedCategory(x)} />
+              <FilterTransactionButton onPress={() => {filterTransaction( selectedType, selectedCategory)}} /> 
+            </View>
+          </View>
+        </Modal>
+
       <View style={styles.header}>
       
         <TouchableOpacity style={styles.headerDateContainer}>
@@ -164,8 +211,8 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
            <TouchableOpacity style={{paddingRight: 5}} onPress={() => setModalVisible(true)}>
               <Ionicons name="add-circle-outline" size={26} color={Colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={{paddingRight: 5}}>
-              <Ionicons name="funnel-outline" size={26} color={Colors.text} />
+            <TouchableOpacity style={{paddingRight: 5}} onPress={() => setModalFilterVisible(true)}>
+              <Ionicons name="funnel-outline" size={26} color={Colors.text} /> 
             </TouchableOpacity>
            </View>
           {isLoading ? (
@@ -268,6 +315,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: Colors.accent,
   },
+    bottomPopUp: {
+      height: 800,
+      flexDirection: "column",
+      justifyContent: "flex-end",
+    },
 });
 
 export default Transactions;

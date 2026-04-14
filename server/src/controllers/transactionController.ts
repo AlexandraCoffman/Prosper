@@ -65,7 +65,8 @@ export const deleteTransaction = async (req: Request, res: Response) => {
 export const filterTransaction = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);
-    const transactions = await Transaction.find({ userid: userId });
+    const { category, type } = req.params
+    const transactions = await Transaction.find({ userid: userId, category, type});
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error });

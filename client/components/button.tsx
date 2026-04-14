@@ -72,6 +72,14 @@ export const CreateTransactionButton = ({ onPress }: CreateTransactionButtonProp
   );
 }
 
+export const FilterTransactionButton = ({ onPress }: CreateTransactionButtonProps) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={[styles.createButton, {padding: 20 }]}>
+      <Text style={styles.createButtonText}> Filter Transaction</Text>
+    </TouchableOpacity>
+  );
+}
+
 
 
 const styles = StyleSheet.create({
