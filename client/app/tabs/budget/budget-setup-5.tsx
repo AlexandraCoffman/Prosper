@@ -69,9 +69,14 @@ export default function BudgetPlan({
 
       if (response.ok) {
         onNavigateToBudgetCreated?.(); 
+      } else {
+        // This will now properly catch backend errors without breaking the app
+        const errorData = await response.text();
+        console.error("Budget save failed. Status:", response.status, "Message:", errorData);
+        alert(`Failed to save budget: ${response.status}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Network request failed:", error);
     } finally {
       setIsSaving(false);
     }

@@ -11,7 +11,6 @@ import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
 import LargePieChart from "../../../components/large-pie-chart";
-import List from "../../../components/list";
 import { useAuth } from "@clerk/clerk-expo";
 import Card from "../../../components/card";
 
@@ -20,6 +19,7 @@ interface BudgetCreatedProps {
   onBack?: () => void;
   onExit?: () => void;
   onNavigateToSettings?: () => void;
+  onEditBudget?: () => void;
 }
 
 interface Transaction {
@@ -37,7 +37,7 @@ interface RepeatTransaction {
   totalCost: number;
 }
 
-export default function BudgetCreated({progress = 100, onBack, onExit, onNavigateToSettings}: BudgetCreatedProps) {
+export default function BudgetCreated({progress = 100, onBack, onExit, onNavigateToSettings, onEditBudget}: BudgetCreatedProps) {
   const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [topData, setTopData] = useState<Transaction[]>([]);
@@ -47,7 +47,7 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
   const { userId, getToken } = useAuth();
 
   useEffect(() => {
-     fetchBudget();
+    fetchBudget();
     fetchTopPurchases();
     fetchRepeatPurchases();
     setIsLoading(false);
@@ -71,43 +71,39 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
     }
   }
 
-  
-  
+  const fetchTopPurchases = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const res = await fetch(`${API_URL}/api/transactions/top`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTopData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching top purchases:", error);
+    } 
+  };
 
-    const fetchTopPurchases = async () => {
-      try {
-        const token = await getToken();
-        if (!token) return;
-        const res = await fetch(`${API_URL}/api/transactions/top`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setTopData(data);
-        }
-      } catch (error) {
-        console.error("Error fetching top purchases:", error);
-      } 
-    };
+  const fetchRepeatPurchases = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const res = await fetch(`${API_URL}/api/transactions/repeat`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRepeatData(data);
+        console.log(data)
+      }
+    } catch (error) {
+      console.error("Error fetching top purchases:", error);
+    } 
+  };
 
-    const fetchRepeatPurchases = async () => {
-      try {
-        const token = await getToken();
-        if (!token) return;
-        const res = await fetch(`${API_URL}/api/transactions/repeat`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setRepeatData(data);
-          console.log(data)
-        }
-      } catch (error) {
-        console.error("Error fetching top purchases:", error);
-      } 
-    };
-
-  
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
@@ -117,11 +113,17 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
   }
 
   const totalBudget = budgetData?.totalIncome || 1200;
-  const activeSplit = budgetData?.splitStrategy || { needs: 0.75, wants: 0.15, savings: 0.10 };
+  const activeSplit = budgetData?.splitStrategy || { needs: 0.50, wants: 0.30, savings: 0.20 };
   
   const needs = totalBudget * activeSplit.needs;
   const wants = totalBudget * activeSplit.wants;
   const savings = totalBudget * activeSplit.savings;
+
+  const budgetSummary = [
+    { title: "Needs", desc: "", value: `$${needs.toFixed(0)}`, iconName: "checklist", iconType: "Octicons" as const },
+    { title: "Wants", desc: "", value: `$${wants.toFixed(0)}`, iconName: "bag-outline", iconType: "Ionicons" as const },
+    { title: "Savings", desc: "", value: `$${savings.toFixed(0)}`, iconName: "piggy-bank-outline", iconType: "MaterialCommunityIcons" as const },
+  ];
 
   return (
     <View style={styles.container}>
@@ -146,12 +148,18 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
             savings={savings}
             showLegend={true}
           />
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={onEditBudget}>
             <Ionicons name="create-outline" size={20} color={Colors.text} />
           </TouchableOpacity>
         </View>
 
-        <List title="Needs" items={budgetData?.needsItems || []} />
+        <View style={styles.planHeaderContainer}>
+          <Text style={styles.planHeader}>
+            {`${Math.round(activeSplit.needs * 100)}/${Math.round(activeSplit.wants * 100)}/${Math.round(activeSplit.savings * 100)} Plan`}
+          </Text>
+        </View>
+        
+        <Card body={budgetSummary} />
 
         <View style={styles.viewSwitch}>
           <View style={[styles.dotView, styles.dotViewActive]} />
@@ -162,7 +170,6 @@ export default function BudgetCreated({progress = 100, onBack, onExit, onNavigat
         <View style={styles.spendingHeader}>
            <Text style={styles.spendingTitle}>Spending</Text>
         </View>
-
         
         { repeatData.length == 0 ?(
          <>
@@ -255,9 +262,22 @@ const styles = StyleSheet.create({
     borderWidth: 2, 
     borderColor: Colors.primary,
   },
+  planHeaderContainer: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  planHeader: {
+    fontSize: 20, 
+    ...Fonts.bold, 
+    color: Colors.text, 
+    marginTop: 10, 
+    marginBottom: 12,
+    marginLeft: 15,
+  },
   viewSwitch: {
     flexDirection: "row",
     marginBottom: 20,
+    marginTop: 10,
   },
   dotView: {
     width: 10,

@@ -341,6 +341,7 @@ function AppContent() {
             onBack={() => setCurrentScreen("BudgetPlan")}
             onExit={() => setCurrentScreen("BudgetCreated")}
             onNavigateToSettings={handleNavigateToSettings}
+            onEditBudget={() => setCurrentScreen("MonthlyEarnings")}
           />
         );
 
