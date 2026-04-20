@@ -345,7 +345,7 @@ function AppContent() {
         );
 
       case "Learn":
-        return <Learn onNavigateToSettings={handleNavigateToSettings} />;
+        return <Learn onNavigateToSettings={handleNavigateToSettings} firstName={firstName} />;
 
       default:
         return (
