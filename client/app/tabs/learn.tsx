@@ -11,6 +11,26 @@ import LearnVideosCarousel from "../../components/learn-videos-carousel";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
+const FALLBACK_DATA: LearnData = {
+  userName: "",
+  streak: {
+    count: 0,
+    days: ["Su","Mo","Tu","We","Th","Fr","Sa"].map((label) => ({ label, completed: false })),
+  },
+  recommendation: { icon: "wallet-outline", title: "Budgeting 101", duration: "5 min" },
+  lessons: [
+    { icon: "wallet-outline",      title: "Budgeting 101",               duration: "5 min" },
+    { icon: "trending-up-outline", title: "Building an Emergency Fund",  duration: "7 min" },
+    { icon: "card-outline",        title: "Understanding Credit Scores", duration: "6 min" },
+    { icon: "pie-chart-outline",   title: "The 50/30/20 Rule",           duration: "4 min" },
+  ],
+  videos: [
+    { title: "How to Stop Living Paycheck to Paycheck" },
+    { title: "Investing for Beginners" },
+    { title: "How to Pay Off Debt Fast" },
+  ],
+};
+
 export type Lesson = {
   icon: string;
   title: string;
@@ -74,7 +94,6 @@ export default function Learn({ onNavigateToSettings, firstName }: LearnProps) {
 
   const [data, setData] = useState<LearnData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const handleComplete = async () => {
     try {
@@ -115,7 +134,7 @@ export default function Learn({ onNavigateToSettings, firstName }: LearnProps) {
         setData(result);
       } catch (e: any) {
         console.error("Learn fetch error:", e);
-        setError(e.message ?? "Something went wrong");
+        setData(FALLBACK_DATA);
       } finally {
         setLoading(false);
       }
@@ -138,12 +157,10 @@ export default function Learn({ onNavigateToSettings, firstName }: LearnProps) {
     );
   }
 
-  if (error || !data) {
+  if (!data) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>
-          {error ?? "Could not load Learn data."}
-        </Text>
+        <Text style={styles.errorText}>Could not load Learn data.</Text>
       </View>
     );
   }
@@ -175,8 +192,8 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   greeting: {
-    fontSize: 20,
-    ...Fonts.regular,
+    fontSize: 24,
+    ...Fonts.bold,
     color: Colors.text,
     marginHorizontal: 24,
     marginBottom: 16,
