@@ -184,6 +184,7 @@ export default function Budget({ onNavigateToSettings, onEditBudget, onNavigateT
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="settings-button"
           style={[styles.headerRightSide, { alignItems: "flex-end" }]}
           onPress={onNavigateToSettings}
         >

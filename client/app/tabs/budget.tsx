@@ -131,6 +131,7 @@ export default function Budget({ onNavigateToSettings }: BudgetProps) {
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="settings-button"
           style={[styles.headerRightSide, { alignItems: "flex-end" }]}
           onPress={onNavigateToSettings}
         >
@@ -143,7 +144,7 @@ export default function Budget({ onNavigateToSettings }: BudgetProps) {
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
-          <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 40 }} />
+          <ActivityIndicator testID="loading-indicator" size="large" color={Colors.primary} style={{ marginTop: 40 }} />
         ) : !budgetData ? (
           <>
             <LargePieChart showLegend={true} />
