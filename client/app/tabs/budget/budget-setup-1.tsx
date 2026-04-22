@@ -19,27 +19,27 @@ export default function MonthlyEarnings({
   progress = 20, 
   onNavigateToPickMonthly 
 }: MonthlyEarningsProps) {
-  const [selectedOctober, setSelectedOctober] = useState<number[]>([]);
-  const [selectedSeptember, setSelectedSeptember] = useState<number[]>([]);
+  const [selectedApril, setSelectedApril] = useState<number[]>([]);
+  const [selectedMarch, setSelectedMarch] = useState<number[]>([]);
 
-  const octoberData = [
-    { title: "University of Pittsburgh", desc: "October 30", value: "+$1500.81" },
-    { title: "University of Pittsburgh", desc: "October 12", value: "+$1500.81" },
+  const AprilData = [
+    { title: "University of Pittsburgh", desc: "April 30", value: "+$1500.81" },
+    { title: "University of Pittsburgh", desc: "April 12", value: "+$1500.81" },
   ];
 
-  const septemberData = [
-    { title: "University of Pittsburgh", desc: "September 30", value: "+$1500.81" },
-    { title: "University of Pittsburgh", desc: "September 12", value: "+$1286.81" },
+  const MarchData = [
+    { title: "University of Pittsburgh", desc: "March 30", value: "+$1500.81" },
+    { title: "University of Pittsburgh", desc: "March 12", value: "+$1286.81" },
   ];
 
-  const toggleOctober = (index: number) => {
-    setSelectedOctober((prev) =>
+  const toggleApril = (index: number) => {
+    setSelectedApril((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
-  const toggleSeptember = (index: number) => {
-    setSelectedSeptember((prev) =>
+  const toggleMarch = (index: number) => {
+    setSelectedMarch((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
@@ -48,19 +48,19 @@ export default function MonthlyEarnings({
     let octTotal = 0;
     let septTotal = 0;
     
-    selectedOctober.forEach(index => {
-       const val = parseFloat(octoberData[index].value.replace(/[^0-9.-]+/g,""));
+    selectedApril.forEach(index => {
+       const val = parseFloat(AprilData[index].value.replace(/[^0-9.-]+/g,""));
        octTotal += val;
     });
     
-    selectedSeptember.forEach(index => {
-       const val = parseFloat(septemberData[index].value.replace(/[^0-9.-]+/g,""));
+    selectedMarch.forEach(index => {
+       const val = parseFloat(MarchData[index].value.replace(/[^0-9.-]+/g,""));
        septTotal += val;
     });
     
     let monthsSelected = 0;
-    if (selectedOctober.length > 0) monthsSelected++;
-    if (selectedSeptember.length > 0) monthsSelected++;
+    if (selectedApril.length > 0) monthsSelected++;
+    if (selectedMarch.length > 0) monthsSelected++;
 
     let averageIncome = 3000;
     if (monthsSelected > 0) {
@@ -82,19 +82,19 @@ export default function MonthlyEarnings({
         </Text>
         
         <Card
-          header="October"
+          header="April"
           isAdd={true}
-          body={octoberData}
-          selectedIndexes={selectedOctober}
-          onItemPress={toggleOctober}
+          body={AprilData}
+          selectedIndexes={selectedApril}
+          onItemPress={toggleApril}
         />
 
         <Card
-          header="September"
+          header="March"
           isAdd={true}
-          body={septemberData}
-          selectedIndexes={selectedSeptember}
-          onItemPress={toggleSeptember}
+          body={MarchData}
+          selectedIndexes={selectedMarch}
+          onItemPress={toggleMarch}
         />
 
         <ContinueButton onPress={handleContinue} />

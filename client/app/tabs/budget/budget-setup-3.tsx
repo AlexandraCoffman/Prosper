@@ -24,10 +24,10 @@ export default function Bills({
   const [selectedBills, setSelectedBills] = useState<number[]>([]);
 
   const billData = [
-    { title: "Rent", desc: "October 30", value: "-700.12", iconName: "flash-outline" as const },
-    { title: "Water", desc: "October 30", value: "-25.06", iconName: "water-outline" as const },
-    { title: "Netflix", desc: "October 30", value: "-14.99", iconName: "videocam-outline" as const },
-    { title: "Spotify", desc: "October 30", value: "-9.99", iconName: "musical-notes-outline" as const },
+    { title: "Rent", desc: "April 30", value: "-700.12", iconName: "flash-outline" as const },
+    { title: "Water", desc: "April 30", value: "-25.06", iconName: "water-outline" as const },
+    { title: "Netflix", desc: "April 30", value: "-14.99", iconName: "videocam-outline" as const },
+    { title: "Spotify", desc: "April 30", value: "-9.99", iconName: "musical-notes-outline" as const },
   ];
 
   const handleToggleBill = (index: number) => {
