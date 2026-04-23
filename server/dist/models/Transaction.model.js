@@ -5,6 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const TransactionSchema = new mongoose_1.default.Schema({
+    userid: {
+        type: String,
+        required: true,
+    },
     id: {
         type: String,
         required: true,
@@ -30,6 +34,6 @@ const TransactionSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-});
+}, { timestamps: true });
 const Transaction = mongoose_1.default.model("Transaction", TransactionSchema);
 exports.default = Transaction;

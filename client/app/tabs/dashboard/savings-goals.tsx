@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import MeterCard from "../../../components/meter-card";
 import LargePieChart from "../../../components/large-pie-chart";
@@ -11,9 +18,18 @@ interface SavingsGoalsProps {
   savingsGoals?: SavingsGoal[];
   onRenameGoal?: (oldTitle: string, newTitle: string) => void;
   onDeleteGoal?: (title: string) => void;
+  firstName?: string;
+  onNavigateToSettings?: () => void;
 }
 
-const SavingsGoals = ({ onBack, savingsGoals = [], onRenameGoal, onDeleteGoal }: SavingsGoalsProps) => {
+const SavingsGoals = ({
+  onBack,
+  savingsGoals = [],
+  onRenameGoal,
+  onDeleteGoal,
+  firstName,
+  onNavigateToSettings,
+}: SavingsGoalsProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -24,7 +40,10 @@ const SavingsGoals = ({ onBack, savingsGoals = [], onRenameGoal, onDeleteGoal }:
             </Pressable>
           ) : null}
         </View>
-        <TouchableOpacity style={[styles.headerRight, { alignItems: "flex-end" }]}>
+        <TouchableOpacity
+          style={[styles.headerRight, { alignItems: "flex-end" }]}
+          onPress={onNavigateToSettings}
+        >
           <Ionicons name="settings-outline" size={22} color={Colors.text} />
         </TouchableOpacity>
       </View>
@@ -34,8 +53,8 @@ const SavingsGoals = ({ onBack, savingsGoals = [], onRenameGoal, onDeleteGoal }:
       >
         <Text style={styles.title}>Savings Goals</Text>
         <Text style={styles.description}>
-          Great job, ____! You're getting one step closer to achieving your
-          savings goals every month!
+          Great job, {firstName ?? "Friend"}! You're getting one step closer to
+          achieving your savings goals every month!
         </Text>
         <LargePieChart
           showLegend={true}

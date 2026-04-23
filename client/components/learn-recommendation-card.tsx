@@ -1,20 +1,29 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
+import type { Recommendation } from "../app/(tabs)/learn";
 
-export default function RecommendationCard() {
+type Props = {
+  recommendation: Recommendation;
+};
+
+export default function RecommendationCard({ recommendation }: Props) {
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Recommendation</Text>
       <View style={styles.row}>
         <View style={styles.iconCircle}>
-          <Ionicons name="bag-outline" size={18} color={Colors.text} />
+          <Ionicons
+            name={recommendation.icon as any}
+            size={18}
+            color={Colors.text}
+          />
         </View>
         <View style={styles.textBlock}>
-          <Text style={styles.lessonTitle}>Two week meal plan for under $80</Text>
-          <Text style={styles.duration}>5 min</Text>
+          <Text style={styles.lessonTitle}>{recommendation.title}</Text>
+          <Text style={styles.duration}>{recommendation.duration}</Text>
         </View>
         <Ionicons name="chevron-forward" size={20} color={Colors.text} />
       </View>

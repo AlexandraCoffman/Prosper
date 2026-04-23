@@ -14,14 +14,19 @@ import {
   SignedOut,
   ClerkLoaded,
   ClerkLoading,
+  useAuth,
+  useClerk,
+  useUser,
 } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { Colors } from "../styles/colors";
 import SignInScreen from "./auth/sign-in";
 import SignUpScreen from "./auth/sign-up";
+import ForgotPasswordScreen from "./auth/forgot-password";
 import BottomNav from "../components/nav-bar";
 import SavingsGoals from "./tabs/dashboard/savings-goals";
 import Dashboard from "./tabs/dashboard/dashboard";
+import Settings from "./settings";
 import Budget from "./tabs/budget/budget-not-setup";
 import Accounts from "./tabs/accounts";
 import Transactions from "./tabs/transactions";
@@ -78,102 +83,248 @@ if (!publishableKey) {
   );
 }
 
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+
 function AppContent() {
+  const { isSignedIn, getToken } = useAuth();
+  const { signOut } = useClerk();
+  const { user } = useUser();
   const [currentScreen, setCurrentScreen] = useState("Dashboard");
-  const [screen, setScreen] = useState<"home" | "savings-goals" | "sign-in">(
-    "home",
+  const [screen, setScreen] = useState<
+    | "home"
+    | "savings-goals"
+    | "sign-in"
+    | "sign-up"
+    | "forgot-password"
+    | "settings"
+  >("home");
+  const [settingsFrom, setSettingsFrom] = useState<{
+    screen: "home" | "savings-goals";
+    currentScreen: string;
+  }>({ screen: "home", currentScreen: "Dashboard" });
+
+  const handleNavigateToSettings = () => {
+    setSettingsFrom({
+      screen: screen === "savings-goals" ? "savings-goals" : "home",
+      currentScreen,
+    });
+    setScreen("settings");
+  };
+
+  const handleSettingsBack = () => {
+    setScreen(settingsFrom.screen);
+    setCurrentScreen(settingsFrom.currentScreen);
+  };
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(
+    INITIAL_SAVINGS_GOALS,
   );
-  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(INITIAL_SAVINGS_GOALS);
+  const [apiFirstName, setApiFirstName] = useState<string | null>(null);
+  const firstName = apiFirstName ?? user?.firstName ?? null;
+  const [isBudgetCreated, setIsBudgetCreated] = useState(false);
+
+  const [budgetFlowData, setBudgetFlowData] = useState({
+    totalIncome: 0,
+    totalBills: 0,
+    split: { needs: 0.75, wants: 0.15, savings: 0.1 },
+  });
+
+  const pushSavingsGoals = async (goals: SavingsGoal[]) => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      await fetch(`${API_BASE}/api/savings-goals`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ goals }),
+      });
+    } catch {
+      throw new Error("Failed to push savings goals to database.");
+    }
+  };
 
   const handleRenameGoal = (oldTitle: string, newTitle: string) => {
-    setSavingsGoals((prev) =>
-      prev.map((g) => (g.title === oldTitle ? { ...g, title: newTitle } : g))
-    );
+    setSavingsGoals((prev) => {
+      const next = prev.map((g) =>
+        g.title === oldTitle ? { ...g, title: newTitle } : g,
+      );
+      pushSavingsGoals(next);
+      return next;
+    });
   };
 
   const handleDeleteGoal = (title: string) => {
-    setSavingsGoals((prev) => prev.filter((g) => g.title !== title));
+    setSavingsGoals((prev) => {
+      const next = prev.filter((g) => g.title !== title);
+      pushSavingsGoals(next);
+      return next;
+    });
   };
 
-  const [isBudgetCreated, setIsBudgetCreated] = useState(false);
+  const handleAddGoal = (goal: SavingsGoal) => {
+    setSavingsGoals((prev) => {
+      const next = [...prev, goal];
+      if (isSignedIn) pushSavingsGoals(next);
+      return next;
+    });
+  };
 
   useEffect(() => {
-    const fetchMessage = async () => {
+    if (!isSignedIn) return;
+    const fetchUserData = async () => {
       try {
-        await fetch("http://localhost:3000/api/test");
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.first_name) setApiFirstName(data.first_name);
+        }
       } catch {
-        // server unreachable in dev
+        // first_name stays null; greeting falls back to empty
       }
     };
-    fetchMessage();
-  }, []);
-  const handleNavChange = (newScreen : string) => {
-      if(newScreen === "Budget" && isBudgetCreated) {
-        setCurrentScreen("BudgetCreated");
-      } else {
-        setCurrentScreen(newScreen);
+    const fetchSavingsGoals = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/savings-goals`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.goals) && data.goals.length > 0) {
+          setSavingsGoals(data.goals);
+        }
+      } catch {
+        throw new Error("Failed to fetch savings goals from database.");
       }
     };
+    const fetchBudgetStatus = async () => {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/budget/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          setIsBudgetCreated(true);
+        }
+      } catch {
+        // budget not created yet — leave as false
+      }
+    };
+    fetchUserData();
+    fetchSavingsGoals();
+    fetchBudgetStatus();
+  }, [isSignedIn]);
+  const handleNavChange = (newScreen: string) => {
+    if (newScreen === "Budget" && isBudgetCreated) {
+      setCurrentScreen("BudgetCreated");
+    } else {
+      setCurrentScreen(newScreen);
+    }
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       case "Dashboard":
         return (
           <Dashboard
+            savingsGoals={savingsGoals}
+            firstName={firstName}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+            onAddGoal={handleAddGoal}
           />
         );
       case "Accounts":
         return <Accounts />;
       case "Transactions":
-        return <Transactions />;
+        return <Transactions onNavigateToSettings={handleNavigateToSettings} />;
       case "Budget":
         return (
           <Budget
             onNavigateToEstimateMonthlyEarnings={() =>
               setCurrentScreen("MonthlyEarnings")
             }
+            onNavigateToSettings={handleNavigateToSettings}
           />
         );
+
       case "MonthlyEarnings":
         return (
           <MonthlyEarnings
             progress={20}
             onBack={() => setCurrentScreen("Budget")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToPickMonthly={() => setCurrentScreen("PickMonthly")}
+            onNavigateToPickMonthly={(totalIncome) => {
+              setBudgetFlowData((prev) => ({ ...prev, totalIncome }));
+              setCurrentScreen("PickMonthly");
+            }}
           />
         );
+
       case "PickMonthly":
         return (
           <PickMonthly
             progress={40}
+            incomeTotal={budgetFlowData.totalIncome}
             onBack={() => setCurrentScreen("MonthlyEarnings")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToBills={() => setCurrentScreen("Bills")}
+            onNavigateToBills={(finalAmount) => {
+              // CAUGHT IT: Overwrite the totalIncome with the custom/selected amount
+              setBudgetFlowData((prev) => ({
+                ...prev,
+                totalIncome: finalAmount || prev.totalIncome,
+              }));
+              setCurrentScreen("Bills");
+            }}
           />
         );
+
       case "Bills":
         return (
           <Bills
             progress={60}
+            baseIncome={budgetFlowData.totalIncome}
             onBack={() => setCurrentScreen("PickMonthly")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToIncomeSplit={() => setCurrentScreen("IncomeSplit")}
+            onNavigateToIncomeSplit={(totalBills, baseIncome) => {
+              // CAUGHT IT: Save the bills and ensure baseIncome matches just in case
+              setBudgetFlowData((prev) => ({
+                ...prev,
+                totalBills,
+                totalIncome: baseIncome || prev.totalIncome,
+              }));
+              setCurrentScreen("IncomeSplit");
+            }}
           />
         );
+
       case "IncomeSplit":
         return (
           <IncomeSplit
             progress={80}
+            totalIncome={budgetFlowData.totalIncome}
+            totalBills={budgetFlowData.totalBills}
             onBack={() => setCurrentScreen("Bills")}
             onExit={() => setCurrentScreen("Budget")}
-            onNavigateToBudgetPlan={() => setCurrentScreen("BudgetPlan")}
+            onNavigateToBudgetPlan={(split) => {
+              setBudgetFlowData((prev) => ({ ...prev, split }));
+              setCurrentScreen("BudgetPlan");
+            }}
           />
         );
+
       case "BudgetPlan":
         return (
           <BudgetPlan
             progress={90}
+            budgetData={budgetFlowData}
             onBack={() => setCurrentScreen("IncomeSplit")}
             onExit={() => setCurrentScreen("Budget")}
             onNavigateToBudgetCreated={() => {
@@ -182,20 +333,27 @@ function AppContent() {
             }}
           />
         );
+
       case "BudgetCreated":
         return (
           <BudgetCreated
             progress={100}
             onBack={() => setCurrentScreen("BudgetPlan")}
             onExit={() => setCurrentScreen("BudgetCreated")}
+            onNavigateToSettings={handleNavigateToSettings}
           />
-        )
+        );
+
       case "Learn":
         return <Learn />;
+
       default:
         return (
           <Dashboard
+            savingsGoals={savingsGoals}
+            firstName={firstName}
             onNavigateToSavingsGoals={() => setScreen("savings-goals")}
+            onAddGoal={handleAddGoal}
           />
         );
     }
@@ -211,29 +369,74 @@ function AppContent() {
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.screenContent}>
-          <SignInScreen onSwitchToSignUp={() => {}} />
+          <SignInScreen
+            onSwitchToSignUp={() => setScreen("sign-up")}
+            onForgotPassword={() => setScreen("forgot-password")}
+          />
         </View>
         <StatusBar style="auto" />
       </View>
     );
   }
 
+  if (screen === "forgot-password") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.screenContent}>
+          <ForgotPasswordScreen onBack={() => setScreen("sign-in")} />
+        </View>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  if (screen === "sign-up") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.screenContent}>
+          <SignUpScreen onSwitchToSignIn={() => setScreen("sign-in")} />
+        </View>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  const authButton = isSignedIn ? (
+    <TouchableOpacity style={styles.signIn} onPress={() => signOut()}>
+      <Text style={styles.signInText}>Sign Out</Text>
+    </TouchableOpacity>
+  ) : (
+    <TouchableOpacity
+      style={styles.signIn}
+      onPress={() => setScreen("sign-in")}
+    >
+      <Text style={styles.signInText}>Sign In</Text>
+    </TouchableOpacity>
+  );
+
   if (screen === "savings-goals") {
     return (
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.signIn}
-          onPress={() => setScreen("sign-in")}
-        >
-          <Text style={styles.signInText}>Sign In</Text>
-        </TouchableOpacity>
         <View style={styles.screenContent}>
           <SavingsGoals
             onBack={() => setScreen("home")}
             savingsGoals={savingsGoals}
             onRenameGoal={handleRenameGoal}
             onDeleteGoal={handleDeleteGoal}
+            firstName={firstName ?? undefined}
+            onNavigateToSettings={handleNavigateToSettings}
           />
+        </View>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
+
+  if (screen === "settings") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.screenContent}>
+          <Settings onBack={handleSettingsBack} />
         </View>
         <StatusBar style="auto" />
       </View>
@@ -242,12 +445,7 @@ function AppContent() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.signIn}
-        onPress={() => setScreen("sign-in")}
-      >
-        <Text style={styles.signInText}>Sign In</Text>
-      </TouchableOpacity>
+      {currentScreen === "Dashboard" ? authButton : null}
       <View style={styles.content}>{renderScreen()}</View>
       <BottomNav currentScreen={currentScreen} setScreen={handleNavChange} />
       <StatusBar style="auto" />
@@ -256,9 +454,9 @@ function AppContent() {
 }
 
 function SignedOutFallback() {
-  const [mode, setMode] = useState<"sign-in" | "sign-up" | "dev-home">(
-    "sign-in",
-  );
+  const [mode, setMode] = useState<
+    "sign-in" | "sign-up" | "forgot-password" | "dev-home"
+  >("sign-in");
 
   if (mode === "dev-home") {
     return <AppContent />;
@@ -268,11 +466,14 @@ function SignedOutFallback() {
     if (mode === "sign-in") {
       return (
         <SignInScreen
-          onSwitchToSignUp={() => {
-            setMode("sign-up");
-          }}
+          onSwitchToSignUp={() => setMode("sign-up")}
+          onForgotPassword={() => setMode("forgot-password")}
         />
       );
+    }
+
+    if (mode === "forgot-password") {
+      return <ForgotPasswordScreen onBack={() => setMode("sign-in")} />;
     }
 
     return (

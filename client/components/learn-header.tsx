@@ -4,12 +4,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
 
-export default function LearnHeader() {
+interface LearnHeaderProps {
+  onNavigateToSettings?: () => void;
+}
+
+export default function LearnHeader({ onNavigateToSettings }: LearnHeaderProps) {
   return (
     <View style={styles.header}>
       <View style={styles.spacer} />
       <Text style={styles.title}>Learn</Text>
-      <TouchableOpacity style={styles.settingsButton}>
+      <TouchableOpacity style={styles.settingsButton} onPress={onNavigateToSettings}>
         <Ionicons name="settings-outline" size={24} color={Colors.text} />
       </TouchableOpacity>
     </View>

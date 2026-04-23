@@ -1,9 +1,12 @@
 import express, { Request, Response, Application } from "express";
 import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
 import setup from "./middleware/setup";
 import dotenv from "dotenv";
-import transactionRoutes from './routes/transactionRoutes.ts';
-import budgetRoutes from "./routes/budget"; 
+import transactionRoutes from "./routes/transactionRoutes";
+import budgetRoutes from "./routes/budget";
+import userRoutes from "./routes/userRoutes";
+import savingsGoalRoutes from "./routes/savingsGoalRoutes";
 
 dotenv.config();
 
@@ -12,13 +15,16 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 
 app.get("/api/test", (req: Request, res: Response) => {
   res.json({ message: "Test" });
 });
 app.use("/api", budgetRoutes);
+app.use("/api", userRoutes);
+app.use("/api", transactionRoutes);
+app.use("/api", savingsGoalRoutes);
 
-app.use('/api/transactions', transactionRoutes);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: "API Route not found" });

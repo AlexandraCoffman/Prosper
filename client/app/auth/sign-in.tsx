@@ -12,9 +12,13 @@ import ProsperButton from "../../components/button";
 
 type SignInScreenProps = {
   onSwitchToSignUp: () => void;
+  onForgotPassword?: () => void;
 };
 
-const SignInScreen: React.FC<SignInScreenProps> = ({ onSwitchToSignUp }) => {
+const SignInScreen: React.FC<SignInScreenProps> = ({
+  onSwitchToSignUp,
+  onForgotPassword,
+}) => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,20 +79,25 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSwitchToSignUp }) => {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity onPress={onSwitchToSignUp}>
+      <TouchableOpacity onPress={onForgotPassword}>
         <Text style={styles.linkEmphasis}>Forgot your password?</Text>
       </TouchableOpacity>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <View style={styles.buttonContainer}>
-        <ProsperButton text="Sign In" onPress={() => {/* TODO: Handle sign in */}} />
+        <ProsperButton
+          text={loading ? "Signing in…" : "Sign In"}
+          onPress={handleSignIn}
+        />
       </View>
 
       <TouchableOpacity>
         <Text style={styles.link}>
           Don&apos;t have an account?{" "}
-          <Text style={styles.linkEmphasis} onPress={() => onSwitchToSignUp()}>Sign up</Text>
+          <Text style={styles.linkEmphasis} onPress={() => onSwitchToSignUp()}>
+            Sign up
+          </Text>
         </Text>
       </TouchableOpacity>
     </View>

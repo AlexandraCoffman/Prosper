@@ -5,24 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const BudgetSchema = new mongoose_1.default.Schema({
-    user_id: {
-        type: String,
-        required: true,
-        unique: true,
+    userId: { type: String, required: true, unique: true },
+    month: { type: String, required: true },
+    totalIncome: { type: Number, required: true },
+    totalBills: { type: Number, required: true },
+    splitStrategy: {
+        needs: { type: Number, required: true },
+        wants: { type: Number, required: true },
+        savings: { type: Number, required: true }
     },
-    income: {
-        type: String,
-        required: true,
-    },
-    expense: {
-        type: Date,
-        required: true,
-    },
-    budget: {
-        type: (Array),
-        required: true,
-        default: [],
-    },
-});
-const Budget = mongoose_1.default.model("Budget", BudgetSchema);
-exports.default = Budget;
+    needsItems: [
+        {
+            title: String,
+            subtitle: String,
+            amount: String
+        }
+    ]
+}, { timestamps: true });
+exports.default = mongoose_1.default.model('Budget', BudgetSchema);

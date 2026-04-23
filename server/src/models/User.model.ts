@@ -19,8 +19,16 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  life_info: {
+    type: [String],
+    default: [],
+  },
+  support: {
+    type: [String],
+    default: [],
+  },
   goals: {
-    type: Array<String>,
+    type: [String],
     required: true,
     default: [],
   },
