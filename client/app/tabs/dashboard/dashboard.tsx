@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { StyleSheet, Text, View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  ScrollView,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { useAuth } from "@clerk/clerk-expo";
 import { Colors } from "../../../styles/colors";
 import { Fonts } from "../../../styles/fonts";
@@ -33,7 +42,13 @@ interface DashboardProps {
   onAddGoal?: (goal: SavingsGoal) => void;
 }
 
-const EMPTY_FORM = { title: "", accountName: "", monthlyDeposit: "", goalAmount: "", amountSaved: "" };
+const EMPTY_FORM = {
+  title: "",
+  accountName: "",
+  monthlyDeposit: "",
+  goalAmount: "",
+  amountSaved: "",
+};
 
 export default function Dashboard({
   savingsGoals,
@@ -135,7 +150,11 @@ export default function Dashboard({
           }}
         >
           <Text style={styles.sectionTitle}>SAVING GOALS</Text>
-          <Pressable style={{ marginLeft: 8 }} onPress={() => setModalVisible(true)}>
+          <Pressable
+            testID="dashboard-add-goal-button"
+            style={{ marginLeft: 8 }}
+            onPress={() => setModalVisible(true)}
+          >
             <Ionicons name="add-circle-outline" size={16} color={Colors.text} />
           </Pressable>
         </View>
@@ -151,10 +170,16 @@ export default function Dashboard({
 
       <AppModal
         visible={modalVisible}
-        onDismiss={() => { setModalVisible(false); setForm(EMPTY_FORM); setFormError(null); }}
+        onDismiss={() => {
+          setModalVisible(false);
+          setForm(EMPTY_FORM);
+          setFormError(null);
+        }}
         header="New Savings Goal"
         subheader={
-          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+          >
             <TextInput
               style={styles.input}
               placeholder="Goal name"
@@ -175,7 +200,9 @@ export default function Dashboard({
               placeholderTextColor={Colors.textSecondary}
               keyboardType="decimal-pad"
               value={form.monthlyDeposit}
-              onChangeText={(v) => setForm((f) => ({ ...f, monthlyDeposit: v }))}
+              onChangeText={(v) =>
+                setForm((f) => ({ ...f, monthlyDeposit: v }))
+              }
             />
             <TextInput
               style={styles.input}
@@ -193,14 +220,20 @@ export default function Dashboard({
               value={form.amountSaved}
               onChangeText={(v) => setForm((f) => ({ ...f, amountSaved: v }))}
             />
-            {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
+            {formError ? (
+              <Text style={styles.errorText}>{formError}</Text>
+            ) : null}
           </KeyboardAvoidingView>
         }
         buttons={[
           {
             label: "Cancel",
             ghost: true,
-            onPress: () => { setModalVisible(false); setForm(EMPTY_FORM); setFormError(null); },
+            onPress: () => {
+              setModalVisible(false);
+              setForm(EMPTY_FORM);
+              setFormError(null);
+            },
           },
           {
             label: isSignedIn ? "Save" : "Add",

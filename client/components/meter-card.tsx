@@ -62,6 +62,7 @@ const MeterCard = ({
         <View style={styles.titleRow}>
           {isEditing ? (
             <TextInput
+              testID={`meter-card-title-input-${title}`}
               style={styles.titleInput}
               value={editText}
               onChangeText={setEditText}
@@ -92,6 +93,7 @@ const MeterCard = ({
           ) : (
             <>
               <TouchableOpacity
+                testID={`meter-card-edit-${title}`}
                 onPress={() => {
                   setEditText(title);
                   setIsEditing(true);
@@ -105,6 +107,7 @@ const MeterCard = ({
                 />
               </TouchableOpacity>
               <TouchableOpacity
+                testID={`meter-card-delete-${title}`}
                 onPress={() => setShowDeleteModal(true)}
                 style={styles.actionButton}
               >
