@@ -66,11 +66,11 @@ describe("Learn Components", () => {
 
   it("calls onNavigateToSettings when settings icon is pressed", () => {
     const onNavigateToSettings = jest.fn();
-    const { getByText } = render(
+    const { getByTestId } = render(
       <LearnHeader onNavigateToSettings={onNavigateToSettings} />
     );
-    fireEvent.press(getByText("Learn"));
-    // settings button is next to the title — press via accessible parent
+    fireEvent.press(getByTestId("settings-button"));
+    expect(onNavigateToSettings).toHaveBeenCalledTimes(1);
   });
 
   it("shows checkmarks only for completed streak days", () => {
