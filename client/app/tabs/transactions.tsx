@@ -209,14 +209,14 @@ const Transactions = ({ onNavigateToSettings }: TransactionsProps) => {
 
           <View style={[{flexDirection: "row", justifyContent: 'flex-end', alignItems: 'flex-end'}]}>
            <TouchableOpacity style={{paddingRight: 5}} onPress={() => setModalVisible(true)}>
-              <Ionicons name="add-circle-outline" size={26} color={Colors.text} />
+              <Ionicons testID = "add-button" name="add-circle-outline" size={26} color={Colors.text} />
             </TouchableOpacity>
             <TouchableOpacity style={{paddingRight: 5}} onPress={() => setModalFilterVisible(true)}>
-              <Ionicons name="funnel-outline" size={26} color={Colors.text} /> 
+              <Ionicons testID = "filter-button" name="funnel-outline" size={26} color={Colors.text} /> 
             </TouchableOpacity>
            </View>
           {isLoading ? (
-            <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 40 }} />
+            <ActivityIndicator testID="loading-indicator" size="large" color={Colors.primary} style={{ marginTop: 40 }} />
           ) : transactions.length === 0 ? (
             <Text style={[styles.description, { textAlign: 'center', marginTop: 40 }]}>
               No transactions yet.

@@ -22,12 +22,15 @@ describe("Budget Component", () => {
     });
   });
 
-  it("shows a loading indicator while fetching data initially", () => {
+  it("shows a loading indicator while fetching data initially", async() => {
     (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
     const { getByTestId } = render(<Budget />);
     
-    expect(getByTestId("loading-indicator")).toBeTruthy();
+    await waitFor(() => {
+              const icon = getByTestId("loading-indicator");
+              expect(icon).toBeTruthy()
+        });
   });
 
   it("displays the empty budget view and empty transactions when no budget data is returned", async () => {
