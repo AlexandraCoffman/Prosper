@@ -1,5 +1,6 @@
 import Budget from "../models/Budget.model";
 import Transaction from "../models/Transaction.model";
+import LearnProgress from "../models/Learn.model";
 
 function generateTxnId(): string {
   return `txn_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -50,5 +51,19 @@ export async function seedUserData(userId: string): Promise<void> {
       id: generateTxnId(),
       ...t,
     })),
+  );
+
+    const today = new Date();
+  const toDateString = (d: Date) => d.toISOString().slice(0, 10);
+  const seedDates = [1, 2, 3].map((offset) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - offset);
+    return toDateString(d);
+  });
+
+  await LearnProgress.findOneAndUpdate(
+    { userId },
+    { streakCount: 3, lastCompletedDate: seedDates[0], completedDates: seedDates },
+    { upsert: true, new: true },
   );
 }

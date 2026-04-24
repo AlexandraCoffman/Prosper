@@ -62,7 +62,7 @@ export default function Budget({ onNavigateToEstimateMonthlyEarnings, onNavigate
         <View style={styles.header}>
           <View style={styles.headerRightSide} />
           <TouchableOpacity style={styles.headerDateContainer}>
-            <Text style={styles.headerDate}>October 2025</Text>
+            <Text style={styles.headerDate}>April 2026</Text>
             <Ionicons name="chevron-down" size={18} color={Colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.headerRightSide, { alignItems: "flex-end" }]} onPress={onNavigateToSettings}>

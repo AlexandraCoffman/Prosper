@@ -341,11 +341,12 @@ function AppContent() {
             onBack={() => setCurrentScreen("BudgetPlan")}
             onExit={() => setCurrentScreen("BudgetCreated")}
             onNavigateToSettings={handleNavigateToSettings}
+            onEditBudget={() => setCurrentScreen("MonthlyEarnings")}
           />
         );
 
       case "Learn":
-        return <Learn />;
+        return <Learn onNavigateToSettings={handleNavigateToSettings} firstName={firstName} />;
 
       default:
         return (

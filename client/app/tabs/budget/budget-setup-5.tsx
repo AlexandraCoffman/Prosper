@@ -43,18 +43,36 @@ export default function BudgetPlan({
     setIsSaving(true);
     const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
     const token = await getToken();
-
+    const currentMonthYear = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
     const dataToSave = {
       userId: userId,
-      month: "October 2025",
+      month: currentMonthYear,
       totalIncome: totalBudget,
       totalBills: totalBills,
       splitStrategy: activeSplit,
       needsItems: [
-        { title: "Needs", subtitle: "Fixed Bills", amount: `$${needsTotal.toFixed(0)}`,iconName: "home-outline" },
-        { title: "Wants", subtitle: "Spending Money", amount: `$${wantsTotal.toFixed(0)}`, iconName: "bag-outline" },
-        { title: "Savings", subtitle: "Future Goals", amount: `$${savingsTotal.toFixed(0)}`, iconName: "piggy-bank-outline" },
-      ]
+        { 
+          title: "Needs", 
+          subtitle: "Fixed Bills", 
+          amount: `$${needsTotal.toFixed(0)}`,
+          iconName: "home-outline", 
+          iconType: "Ionicons"
+        },
+        { 
+          title: "Wants", 
+          subtitle: "Spending Money", 
+          amount: `$${wantsTotal.toFixed(0)}`, 
+          iconName: "bag-outline", 
+          iconType: "Ionicons"
+        },
+        { 
+          title: "Savings", 
+          subtitle: "Future Goals", 
+          amount: `$${savingsTotal.toFixed(0)}`, 
+          iconName: "piggy-bank-outline", 
+          iconType: "MaterialCommunityIcons"
+        },
+    ]
     };
 
     try {
@@ -69,9 +87,13 @@ export default function BudgetPlan({
 
       if (response.ok) {
         onNavigateToBudgetCreated?.(); 
+      } else {
+        const errorData = await response.text();
+        console.error("Budget save failed. Status:", response.status, "Message:", errorData);
+        alert(`Failed to save budget: ${response.status}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Network request failed:", error);
     } finally {
       setIsSaving(false);
     }

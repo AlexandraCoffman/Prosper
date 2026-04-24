@@ -2,16 +2,24 @@ import React, { useRef, useState } from "react";
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   ScrollView,
-  Dimensions,
 } from "react-native";
 import { Colors } from "../styles/colors";
 import { Fonts } from "../styles/fonts";
-import type { Video } from "../app/(tabs)/learn";
+import type { Video } from "../app/tabs/learn";
 
 const CARD_WIDTH = 168;
 const CARD_GAP = 20;
+
+const THUMBNAILS = [
+  require("../assets/video_thumbnail_1.png"),
+  require("../assets/video_thumbnail_2.png"),
+  require("../assets/video_thumbnail_3.png"),
+  require("../assets/video_thumbnail_4.png"),
+  require("../assets/video_thumbnail_5.png"),
+];
 
 type Props = {
   videos: Video[];
@@ -44,10 +52,16 @@ export default function LearnVideosCarousel({ videos }: Props) {
       >
         {videos.map((video, index) => (
           <View key={index} style={styles.card}>
-            <View style={styles.thumbnail} />
-            <Text style={styles.videoTitle} numberOfLines={2}>
-              {video.title}
-            </Text>
+            <Image
+              source={THUMBNAILS[index % THUMBNAILS.length]}
+              style={styles.thumbnail}
+            />
+            <View style={styles.titleRow}>
+              <Text style={styles.videoTitle}>
+                {video.title}
+              </Text>
+              <Image source={require("../assets/play.png")} style={styles.playIcon} />
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -84,7 +98,7 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.accent2,
   },
   thumbnail: {
     width: CARD_WIDTH,
@@ -92,11 +106,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent2,
     borderRadius: 12,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+  },
+  playIcon: {
+    width: 16,
+    height: 16,
+  },
   videoTitle: {
+    flex: 1,
     fontSize: 13,
     ...Fonts.regular,
     color: Colors.text,
-    padding: 8,
   },
   dotsRow: {
     flexDirection: "row",

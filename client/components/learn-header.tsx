@@ -13,7 +13,7 @@ export default function LearnHeader({ onNavigateToSettings }: LearnHeaderProps) 
     <View style={styles.header}>
       <View style={styles.spacer} />
       <Text style={styles.title}>Learn</Text>
-      <TouchableOpacity style={styles.settingsButton} onPress={onNavigateToSettings}>
+      <TouchableOpacity testID="settings-button" style={styles.settingsButton} onPress={onNavigateToSettings}>
         <Ionicons name="settings-outline" size={24} color={Colors.text} />
       </TouchableOpacity>
     </View>

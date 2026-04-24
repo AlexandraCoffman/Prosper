@@ -35,12 +35,17 @@ const SavingsGoals = ({
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           {onBack ? (
-            <Pressable onPress={onBack} style={styles.backButton}>
+            <Pressable
+              testID="savings-goals-back"
+              onPress={onBack}
+              style={styles.backButton}
+            >
               <Text style={styles.backButtonText}>←</Text>
             </Pressable>
           ) : null}
         </View>
         <TouchableOpacity
+          testID="savings-goals-settings"
           style={[styles.headerRight, { alignItems: "flex-end" }]}
           onPress={onNavigateToSettings}
         >

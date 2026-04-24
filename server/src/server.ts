@@ -7,6 +7,7 @@ import transactionRoutes from "./routes/transactionRoutes";
 import budgetRoutes from "./routes/budget";
 import userRoutes from "./routes/userRoutes";
 import savingsGoalRoutes from "./routes/savingsGoalRoutes";
+import learnRoutes from "./routes/learnRoutes";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use("/api", budgetRoutes);
 app.use("/api", userRoutes);
 app.use("/api", transactionRoutes);
 app.use("/api", savingsGoalRoutes);
+app.use("/api", learnRoutes);
 
 
 app.use((req: Request, res: Response) => {
